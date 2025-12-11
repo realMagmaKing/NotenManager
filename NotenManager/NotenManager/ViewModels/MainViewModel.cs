@@ -2,254 +2,359 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using NotenManager.Models;
 using NotenManager.Services;
-using System;
 using System.Collections.ObjectModel;
-using System.Threading.Tasks;
 
 namespace NotenManager.ViewModels
 {
- public partial class MainViewModel : ObservableObject
- {
- private readonly DataService _dataService;
+    public partial class MainViewModel : ObservableObject
+    {
+        private readonly DataService _dataService;
 
- private string _currentPage = "Overview";
- public string CurrentPage { get => _currentPage; set => SetProperty(ref _currentPage, value); }
+        [ObservableProperty]
+        private string currentPage = "Overview";
 
- private Subject _selectedSubject;
- public Subject SelectedSubject { get => _selectedSubject; set => SetProperty(ref _selectedSubject, value); }
+        [ObservableProperty]
+        private Subject selectedSubject;
 
- private ObservableCollection<Subject> _subjects;
- public ObservableCollection<Subject> Subjects { get => _subjects; set => SetProperty(ref _subjects, value); }
+        [ObservableProperty]
+        private ObservableCollection<Subject> subjects;
 
- private double _overallAverage;
- public double OverallAverage { get => _overallAverage; set => SetProperty(ref _overallAverage, value); }
+        [ObservableProperty]
+        private double overallAverage;
 
- private bool _isAddSubjectModalVisible;
- public bool IsAddSubjectModalVisible { get => _isAddSubjectModalVisible; set => SetProperty(ref _isAddSubjectModalVisible, value); }
+        [ObservableProperty]
+        private bool isAddSubjectModalVisible;
 
- private bool _isAddNoteModalVisible;
- public bool IsAddNoteModalVisible { get => _isAddNoteModalVisible; set => SetProperty(ref _isAddNoteModalVisible, value); }
+        [ObservableProperty]
+        private bool isAddNoteModalVisible;
 
- private bool _isEditNoteModalVisible;
- public bool IsEditNoteModalVisible { get => _isEditNoteModalVisible; set => SetProperty(ref _isEditNoteModalVisible, value); }
+        [ObservableProperty]
+        private bool isEditNoteModalVisible;
 
- private string _newSubjectName = string.Empty;
- public string NewSubjectName { get => _newSubjectName; set => SetProperty(ref _newSubjectName, value); }
+        [ObservableProperty]
+        private string newSubjectName = "";
 
- private int _newSubjectLessons =3;
- public int NewSubjectLessons { get => _newSubjectLessons; set => SetProperty(ref _newSubjectLessons, value); }
+        [ObservableProperty]
+        private int newSubjectLessons = 3;
 
- private string _newNoteType = string.Empty;
- public string NewNoteType { get => _newNoteType; set => SetProperty(ref _newNoteType, value); }
+        [ObservableProperty]
+        private string newNoteType = "";
 
- private string _newNoteGrade = string.Empty;
- public string NewNoteGrade { get => _newNoteGrade; set => SetProperty(ref _newNoteGrade, value); }
+        [ObservableProperty]
+        private double newNoteGrade;
 
- private DateTime _newNoteDate = DateTime.Now;
- public DateTime NewNoteDate { get => _newNoteDate; set => SetProperty(ref _newNoteDate, value); }
+        [ObservableProperty]
+        private DateTime newNoteDate = DateTime.Now;
 
- private Note _editingNote;
+        [ObservableProperty]
+        private AppSettings settings;
 
- public MainViewModel()
- {
- _dataService = new DataService();
- Subjects = _dataService.GetSubjects();
- UpdateOverallAverage();
- }
+        [ObservableProperty]
+        private bool isDarkMode;
 
- [RelayCommand]
- private void NavigateToOverview()
- {
- CurrentPage = "Overview";
- UpdateOverallAverage();
- }
+        [ObservableProperty]
+        private List<Note> recentNotes;
 
- [RelayCommand]
- private void NavigateToSubjects()
- {
- CurrentPage = "Subjects";
- }
+        [ObservableProperty]
+        private string targetAverageText = "3.0";
 
- [RelayCommand]
- private void NavigateToSettings()
- {
- CurrentPage = "Settings";
- }
+        [ObservableProperty]
+        private bool targetReached;
 
- [RelayCommand]
- private void NavigateToNotes(Subject subject)
- {
- SelectedSubject = subject;
- CurrentPage = "Notes";
- }
+        private Note _editingNote;
 
- [RelayCommand]
- private void ShowAddSubjectModal()
- {
- NewSubjectName = string.Empty;
- NewSubjectLessons =3;
- IsAddSubjectModalVisible = true;
- }
+        public MainViewModel()
+        {
+            _dataService = new DataService();
+            Subjects = _dataService.GetSubjects();
+            Settings = _dataService.LoadSettings();
+            IsDarkMode = Settings.IsDarkMode;
+            UpdateOverallAverage();
+            LoadRecentNotes();
+            CheckTargetAverage();
+        }
 
- [RelayCommand]
- private void CloseAddSubjectModal()
- {
- IsAddSubjectModalVisible = false;
- }
+        [RelayCommand]
+        private void NavigateToOverview()
+        {
+            CurrentPage = "Overview";
+            UpdateOverallAverage();
+            LoadRecentNotes();
+        }
 
- [RelayCommand]
- private void AddSubject()
- {
- if (string.IsNullOrWhiteSpace(NewSubjectName))
- {
- Application.Current.MainPage.DisplayAlert("Fehler", "Bitte gib einen Fachnamen ein", "OK");
- return;
- }
+        [RelayCommand]
+        private void NavigateToSubjects()
+        {
+            CurrentPage = "Subjects";
+        }
 
- var colors = new[] { "math", "bio", "info", "deutsch", "other" };
- var newSubject = new Subject
- {
- Name = NewSubjectName,
- LessonsPerWeek = NewSubjectLessons,
- Color = colors[(Subjects?.Count ??0) % colors.Length]
- };
+        [RelayCommand]
+        private void NavigateToSettings()
+        {
+            CurrentPage = "Settings";
+        }
 
- _dataService.AddSubject(newSubject);
- UpdateOverallAverage();
- IsAddSubjectModalVisible = false;
- }
+        [RelayCommand]
+        private void NavigateToStatistics()
+        {
+            CurrentPage = "Statistics";
+        }
 
- [RelayCommand]
- private async Task DeleteSubject(Subject subject)
- {
- bool answer = await Application.Current.MainPage.DisplayAlert(
- "Löschen",
- "Möchtest du dieses Fach wirklich löschen?",
- "Ja",
- "Nein");
+        [RelayCommand]
+        private void NavigateToNotes(Subject subject)
+        {
+            SelectedSubject = subject;
+            CurrentPage = "Notes";
+        }
 
- if (answer)
- {
- _dataService.DeleteSubject(subject);
- UpdateOverallAverage();
- }
- }
+        [RelayCommand]
+        private void ShowAddSubjectModal()
+        {
+            NewSubjectName = "";
+            NewSubjectLessons = 3;
+            IsAddSubjectModalVisible = true;
+        }
 
- [RelayCommand]
- private void ShowAddNoteModal()
- {
- NewNoteType = string.Empty;
- NewNoteGrade = string.Empty;
- NewNoteDate = DateTime.Now;
- IsAddNoteModalVisible = true;
- }
+        [RelayCommand]
+        private void CloseAddSubjectModal()
+        {
+            IsAddSubjectModalVisible = false;
+        }
 
- [RelayCommand]
- private void CloseAddNoteModal()
- {
- IsAddNoteModalVisible = false;
- }
+        [RelayCommand]
+        private void AddSubject()
+        {
+            if (string.IsNullOrWhiteSpace(NewSubjectName))
+            {
+                Application.Current?.MainPage?.DisplayAlert("Fehler", "Bitte gib einen Fachnamen ein", "OK");
+                return;
+            }
 
- [RelayCommand]
- private void AddNote()
- {
- if (string.IsNullOrWhiteSpace(NewNoteType) || string.IsNullOrWhiteSpace(NewNoteGrade))
- {
- Application.Current.MainPage.DisplayAlert("Fehler", "Bitte fülle alle Felder aus", "OK");
- return;
- }
+            var colors = new[] { "math", "bio", "info", "deutsch", "other" };
+            var newSubject = new Subject
+            {
+                Name = NewSubjectName,
+                LessonsPerWeek = NewSubjectLessons,
+                Color = colors[Subjects.Count % colors.Length]
+            };
 
- if (!double.TryParse(NewNoteGrade.Replace(',', '.'), out double grade) || grade <1 || grade >6)
- {
- Application.Current.MainPage.DisplayAlert("Fehler", "Note muss zwischen1 und6 liegen", "OK");
- return;
- }
+            _dataService.AddSubject(newSubject);
+            UpdateOverallAverage();
+            IsAddSubjectModalVisible = false;
+        }
 
- var newNote = new Note
- {
- Type = NewNoteType,
- Grade = grade,
- Date = NewNoteDate
- };
+        [RelayCommand]
+        private async void DeleteSubject(Subject subject)
+        {
+            bool answer = await Application.Current.MainPage.DisplayAlert(
+                "Löschen",
+                $"Möchtest du das Fach '{subject.Name}' wirklich löschen?",
+                "Ja",
+                "Nein");
 
- _dataService.AddNote(SelectedSubject, newNote);
- // Notify UI that SelectedSubject changed (notes list updated)
- OnPropertyChanged(nameof(SelectedSubject));
- UpdateOverallAverage();
- IsAddNoteModalVisible = false;
- }
+            if (answer)
+            {
+                _dataService.DeleteSubject(subject);
+                UpdateOverallAverage();
+            }
+        }
 
- [RelayCommand]
- private void ShowEditNoteModal(Note note)
- {
- _editingNote = note;
- NewNoteType = note.Type;
- NewNoteGrade = note.Grade.ToString();
- NewNoteDate = note.Date;
- IsEditNoteModalVisible = true;
- }
+        [RelayCommand]
+        private void ShowAddNoteModal()
+        {
+            NewNoteType = "";
+            NewNoteGrade = 0;
+            NewNoteDate = DateTime.Now;
+            IsAddNoteModalVisible = true;
+        }
 
- [RelayCommand]
- private void CloseEditNoteModal()
- {
- IsEditNoteModalVisible = false;
- _editingNote = null;
- }
+        [RelayCommand]
+        private void CloseAddNoteModal()
+        {
+            IsAddNoteModalVisible = false;
+        }
 
- [RelayCommand]
- private void UpdateNote()
- {
- if (string.IsNullOrWhiteSpace(NewNoteType) || string.IsNullOrWhiteSpace(NewNoteGrade))
- {
- Application.Current.MainPage.DisplayAlert("Fehler", "Bitte fülle alle Felder aus", "OK");
- return;
- }
+        [RelayCommand]
+        private void AddNote()
+        {
+            if (string.IsNullOrWhiteSpace(NewNoteType))
+            {
+                Application.Current?.MainPage?.DisplayAlert("Fehler", "Bitte gib eine Notensart ein", "OK");
+                return;
+            }
 
- if (!double.TryParse(NewNoteGrade.Replace(',', '.'), out double grade) || grade <1 || grade >6)
- {
- Application.Current.MainPage.DisplayAlert("Fehler", "Note muss zwischen1 und6 liegen", "OK");
- return;
- }
+            if (NewNoteGrade < 1 || NewNoteGrade > 6)
+            {
+                Application.Current?.MainPage?.DisplayAlert("Fehler", "Note muss zwischen 1 und 6 liegen", "OK");
+                return;
+            }
 
- var updatedNote = new Note
- {
- Type = NewNoteType,
- Grade = grade,
- Date = NewNoteDate
- };
+            var newNote = new Note
+            {
+                Type = NewNoteType,
+                Grade = NewNoteGrade,
+                Date = NewNoteDate
+            };
 
- _dataService.UpdateNote(SelectedSubject, _editingNote, updatedNote);
- OnPropertyChanged(nameof(SelectedSubject));
- UpdateOverallAverage();
- IsEditNoteModalVisible = false;
- }
+            _dataService.AddNote(SelectedSubject, newNote);
+            OnPropertyChanged(nameof(SelectedSubject));
+            UpdateOverallAverage();
+            LoadRecentNotes();
+            CheckTargetAverage();
+            IsAddNoteModalVisible = false;
+        }
 
- [RelayCommand]
- private async Task DeleteNote(Note note)
- {
- bool answer = await Application.Current.MainPage.DisplayAlert(
- "Löschen",
- "Möchtest du diese Note wirklich löschen?",
- "Ja",
- "Nein");
+        [RelayCommand]
+        private void ShowEditNoteModal(Note note)
+        {
+            _editingNote = note;
+            NewNoteType = note.Type;
+            NewNoteGrade = note.Grade;
+            NewNoteDate = note.Date;
+            IsEditNoteModalVisible = true;
+        }
 
- if (answer)
- {
- _dataService.DeleteNote(SelectedSubject, note);
- OnPropertyChanged(nameof(SelectedSubject));
- UpdateOverallAverage();
+        [RelayCommand]
+        private void CloseEditNoteModal()
+        {
+            IsEditNoteModalVisible = false;
+            _editingNote = null;
+        }
 
- if (IsEditNoteModalVisible)
- {
- IsEditNoteModalVisible = false;
- }
- }
- }
+        [RelayCommand]
+        private void UpdateNote()
+        {
+            if (string.IsNullOrWhiteSpace(NewNoteType))
+            {
+                Application.Current?.MainPage?.DisplayAlert("Fehler", "Bitte gib eine Notensart ein", "OK");
+                return;
+            }
 
- private void UpdateOverallAverage()
- {
- OverallAverage = _dataService.GetOverallAverage();
- // OverallAverage property setter raises PropertyChanged via SetProperty
- }
- }
+            if (NewNoteGrade < 1 || NewNoteGrade > 6)
+            {
+                Application.Current?.MainPage?.DisplayAlert("Fehler", "Note muss zwischen 1 und 6 liegen", "OK");
+                return;
+            }
+
+            var updatedNote = new Note
+            {
+                Type = NewNoteType,
+                Grade = NewNoteGrade,
+                Date = NewNoteDate
+            };
+
+            _dataService.UpdateNote(SelectedSubject, _editingNote, updatedNote);
+            OnPropertyChanged(nameof(SelectedSubject));
+            UpdateOverallAverage();
+            LoadRecentNotes();
+            CheckTargetAverage();
+            IsEditNoteModalVisible = false;
+        }
+
+        [RelayCommand]
+        private async void DeleteNoteFromModal()
+        {
+            if (_editingNote == null) return;
+
+            bool answer = await Application.Current.MainPage.DisplayAlert(
+                "Löschen",
+                "Möchtest du diese Note wirklich löschen?",
+                "Ja",
+                "Nein");
+
+            if (answer)
+            {
+                _dataService.DeleteNote(SelectedSubject, _editingNote);
+                OnPropertyChanged(nameof(SelectedSubject));
+                UpdateOverallAverage();
+                LoadRecentNotes();
+                CheckTargetAverage();
+                IsEditNoteModalVisible = false;
+            }
+        }
+
+        [RelayCommand]
+        private async void DeleteNote(Note note)
+        {
+            bool answer = await Application.Current.MainPage.DisplayAlert(
+                "Löschen",
+                "Möchtest du diese Note wirklich löschen?",
+                "Ja",
+                "Nein");
+
+            if (answer)
+            {
+                _dataService.DeleteNote(SelectedSubject, note);
+                OnPropertyChanged(nameof(SelectedSubject));
+                UpdateOverallAverage();
+                LoadRecentNotes();
+                CheckTargetAverage();
+            }
+        }
+
+        [RelayCommand]
+        private void ToggleDarkMode()
+        {
+            IsDarkMode = !IsDarkMode;
+            Settings.IsDarkMode = IsDarkMode;
+            _dataService.SaveSettings(Settings);
+
+            Application.Current.UserAppTheme = IsDarkMode ? AppTheme.Dark : AppTheme.Light;
+        }
+
+        [RelayCommand]
+        private void SaveSettings()
+        {
+            _dataService.SaveSettings(Settings);
+            Application.Current?.MainPage?.DisplayAlert("Gespeichert", "Einstellungen wurden gespeichert", "OK");
+        }
+
+        [RelayCommand]
+        private void ExportData()
+        {
+            Application.Current?.MainPage?.DisplayAlert("Export", "Export-Funktion wird in Kürze verfügbar sein", "OK");
+        }
+
+        [RelayCommand]
+        private async void ClearAllData()
+        {
+            bool answer = await Application.Current.MainPage.DisplayAlert(
+                "Alle Daten löschen",
+                "Möchtest du wirklich ALLE Daten löschen? Dies kann nicht rückgängig gemacht werden!",
+                "Ja, löschen",
+                "Abbrechen");
+
+            if (answer)
+            {
+                Subjects.Clear();
+                _dataService.SaveData();
+                UpdateOverallAverage();
+                await Application.Current.MainPage.DisplayAlert("Gelöscht", "Alle Daten wurden gelöscht", "OK");
+            }
+        }
+
+        private void UpdateOverallAverage()
+        {
+            OverallAverage = _dataService.GetOverallAverage();
+        }
+
+        private void LoadRecentNotes()
+        {
+            RecentNotes = _dataService.GetRecentNotes(5);
+        }
+
+        private void CheckTargetAverage()
+        {
+            if (double.TryParse(Settings.TargetAverage, out double target))
+            {
+                TargetReached = OverallAverage <= target;
+            }
+        }
+
+        partial void OnTargetAverageTextChanged(string value)
+        {
+            Settings.TargetAverage = value;
+            CheckTargetAverage();
+        }
+    }
 }
