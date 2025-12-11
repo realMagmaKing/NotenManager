@@ -63,7 +63,7 @@ namespace NotenManager.Services
                     Name = "Mathematik",
                     LessonsPerWeek = 3,
                     Color = "math",
-                    Notes = new List<Note>
+                    Notes = new ObservableCollection<Note>
                     {
                         new Note { Id = 1, Type = "Hausaufgabe", Grade = 2.3, Date = new DateTime(2024, 1, 15) },
                         new Note { Id = 2, Type = "Klassenarbeit", Grade = 2.8, Date = new DateTime(2024, 1, 22) },
@@ -76,7 +76,7 @@ namespace NotenManager.Services
                     Name = "Biologie",
                     LessonsPerWeek = 4,
                     Color = "bio",
-                    Notes = new List<Note>
+                    Notes = new ObservableCollection<Note>
                     {
                         new Note { Id = 1, Type = "Test", Grade = 3.1, Date = new DateTime(2024, 1, 20) }
                     }
@@ -87,7 +87,7 @@ namespace NotenManager.Services
                     Name = "Informatik",
                     LessonsPerWeek = 2,
                     Color = "info",
-                    Notes = new List<Note>
+                    Notes = new ObservableCollection<Note>
                     {
                         new Note { Id = 1, Type = "Projekt", Grade = 3.8, Date = new DateTime(2024, 1, 25) }
                     }
@@ -98,7 +98,7 @@ namespace NotenManager.Services
                     Name = "Deutsch",
                     LessonsPerWeek = 4,
                     Color = "deutsch",
-                    Notes = new List<Note>
+                    Notes = new ObservableCollection<Note>
                     {
                         new Note { Id = 1, Type = "Aufsatz", Grade = 2.5, Date = new DateTime(2024, 1, 18) }
                     }

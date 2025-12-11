@@ -3,6 +3,8 @@ using CommunityToolkit.Mvvm.Input;
 using NotenManager.Models;
 using NotenManager.Services;
 using System.Collections.ObjectModel;
+using Microcharts;
+using SkiaSharp;
 
 namespace NotenManager.ViewModels
 {
@@ -61,6 +63,12 @@ namespace NotenManager.ViewModels
         [ObservableProperty]
         private bool targetReached;
 
+        [ObservableProperty]
+        private Chart gradeChart;
+
+        [ObservableProperty]
+        private List<ChartLegendItem> chartLegendItems;
+
         private Note _editingNote;
 
         public MainViewModel()
@@ -77,6 +85,8 @@ namespace NotenManager.ViewModels
         [RelayCommand]
         private void NavigateToOverview()
         {
+            GradeChart = null;
+            ChartLegendItems = null;
             CurrentPage = "Overview";
             UpdateOverallAverage();
             LoadRecentNotes();
@@ -85,12 +95,16 @@ namespace NotenManager.ViewModels
         [RelayCommand]
         private void NavigateToSubjects()
         {
+            GradeChart = null;
+            ChartLegendItems = null;
             CurrentPage = "Subjects";
         }
 
         [RelayCommand]
         private void NavigateToSettings()
         {
+            GradeChart = null;
+            ChartLegendItems = null;
             CurrentPage = "Settings";
         }
 
@@ -105,6 +119,7 @@ namespace NotenManager.ViewModels
         {
             SelectedSubject = subject;
             CurrentPage = "Notes";
+            UpdateGradeChart();
         }
 
         [RelayCommand]
@@ -197,10 +212,16 @@ namespace NotenManager.ViewModels
             };
 
             _dataService.AddNote(SelectedSubject, newNote);
-            OnPropertyChanged(nameof(SelectedSubject));
+            
+            // Trigger UI refresh for the entire subject including Average
+            var tempSubject = SelectedSubject;
+            SelectedSubject = null;
+            SelectedSubject = tempSubject;
+            
             UpdateOverallAverage();
             LoadRecentNotes();
             CheckTargetAverage();
+            UpdateGradeChart();
             IsAddNoteModalVisible = false;
         }
 
@@ -244,10 +265,16 @@ namespace NotenManager.ViewModels
             };
 
             _dataService.UpdateNote(SelectedSubject, _editingNote, updatedNote);
-            OnPropertyChanged(nameof(SelectedSubject));
-            UpdateOverallAverage();
-            LoadRecentNotes();
-            CheckTargetAverage();
+            
+            // Trigger UI refresh for the entire subject including Average
+            var tempSubject = SelectedSubject;
+            SelectedSubject = null;
+            SelectedSubject = tempSubject;
+      
+     UpdateOverallAverage();
+          LoadRecentNotes();
+ CheckTargetAverage();
+            UpdateGradeChart();
             IsEditNoteModalVisible = false;
         }
 
@@ -265,11 +292,17 @@ namespace NotenManager.ViewModels
             if (answer)
             {
                 _dataService.DeleteNote(SelectedSubject, _editingNote);
-                OnPropertyChanged(nameof(SelectedSubject));
-                UpdateOverallAverage();
-                LoadRecentNotes();
-                CheckTargetAverage();
-                IsEditNoteModalVisible = false;
+          
+     // Trigger UI refresh for the gesamte subject including Average
+      var tempSubject = SelectedSubject;
+         SelectedSubject = null;
+                SelectedSubject = tempSubject;
+                
+         UpdateOverallAverage();
+        LoadRecentNotes();
+  CheckTargetAverage();
+            UpdateGradeChart();
+            IsEditNoteModalVisible = false;
             }
         }
 
@@ -285,10 +318,16 @@ namespace NotenManager.ViewModels
             if (answer)
             {
                 _dataService.DeleteNote(SelectedSubject, note);
-                OnPropertyChanged(nameof(SelectedSubject));
+                
+                // Trigger UI refresh for the gesamte subject including Average
+                var tempSubject = SelectedSubject;
+                SelectedSubject = null;
+                SelectedSubject = tempSubject;
+        
                 UpdateOverallAverage();
                 LoadRecentNotes();
                 CheckTargetAverage();
+                UpdateGradeChart();
             }
         }
 
@@ -351,10 +390,87 @@ namespace NotenManager.ViewModels
             }
         }
 
+        private void UpdateGradeChart()
+        {
+            // Reset first
+            GradeChart = null;
+            ChartLegendItems = null;
+
+            if (SelectedSubject == null || SelectedSubject.Notes.Count == 0)
+            {
+                return;
+            }
+
+            var sortedNotes = SelectedSubject.Notes.OrderBy(n => n.Date).ToList();
+
+            // Create legend items with numbers and running average
+            var runningSum = 0.0;
+            var legendItems = new List<ChartLegendItem>();
+            var entries = new List<ChartEntry>();
+
+            for (int i = 0; i < sortedNotes.Count; i++)
+            {
+                var note = sortedNotes[i];
+                runningSum += note.Grade;
+                var runningAvg = runningSum / (i + 1);
+
+                legendItems.Add(new ChartLegendItem
+                {
+                    Number = i + 1,
+                    Note = note,
+                    Average = Math.Round(runningAvg, 2)
+                });
+
+                var entry = new ChartEntry((float)runningAvg)
+                {
+                    Label = note.Date.ToString("dd.MM"),
+                    ValueLabel = runningAvg.ToString("F2"),
+                    Color = SKColor.Parse("#667eea"),
+                    ValueLabelColor = SKColor.Parse("#1a1a1a"),
+                    TextColor = SKColor.Parse("#999")
+                };
+
+                entries.Add(entry);
+            }
+
+            ChartLegendItems = legendItems;
+
+            // Create a single-line chart: hide points and value labels for a clean line view
+            GradeChart = new LineChart
+            {
+                Entries = entries,
+                BackgroundColor = SKColors.Transparent,
+                LabelTextSize = 14, // smaller x-axis labels
+                ValueLabelTextSize = 0, // hide the value labels above points
+                LineMode = LineMode.Spline,
+                LineSize = 3,
+                PointMode = PointMode.None, // no markers on points
+                PointSize = 0,
+                MinValue = 1,
+                MaxValue = 6,
+                LabelOrientation = Orientation.Horizontal,
+                ValueLabelOrientation = Orientation.Horizontal,
+                AnimationDuration = TimeSpan.FromMilliseconds(700)
+            };
+        }
+
         partial void OnTargetAverageTextChanged(string value)
         {
             Settings.TargetAverage = value;
             CheckTargetAverage();
         }
+
+partial void OnSelectedSubjectChanged(Subject value)
+{
+    // Wichtig: Chart zuerst zurücksetzen bevor neues erstellt wird
+    GradeChart = null;
+    ChartLegendItems = null;
+    
+    // Dann das neue Chart für das ausgewählte Fach erstellen
+    if (value != null && CurrentPage == "Notes")
+    {
+  UpdateGradeChart();
+    }
+}
     }
 }
