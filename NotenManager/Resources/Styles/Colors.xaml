@@ -28,6 +28,11 @@
     <Color x:Key="Gray900">#212121</Color>
     <Color x:Key="Gray950">#141414</Color>
 
+    <!-- Surface colors -->
+    <Color x:Key="SurfaceLight">#f8f9fa</Color>
+    <Color x:Key="SurfaceDark">#141414</Color>
+
+    <!-- Brushes -->
     <SolidColorBrush x:Key="PrimaryBrush" Color="{StaticResource Primary}"/>
     <SolidColorBrush x:Key="SecondaryBrush" Color="{StaticResource Secondary}"/>
     <SolidColorBrush x:Key="TertiaryBrush" Color="{StaticResource Tertiary}"/>
@@ -42,4 +47,11 @@
     <SolidColorBrush x:Key="Gray600Brush" Color="{StaticResource Gray600}"/>
     <SolidColorBrush x:Key="Gray900Brush" Color="{StaticResource Gray900}"/>
     <SolidColorBrush x:Key="Gray950Brush" Color="{StaticResource Gray950}"/>
+
+    <!-- Theme-aware brushes used in UI -->
+    <SolidColorBrush x:Key="SurfaceBrush" Color="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}"/>
+    <SolidColorBrush x:Key="PrimaryTextBrush" Color="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}"/>
+    <SolidColorBrush x:Key="SecondaryTextBrush" Color="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray300}}"/>
+    <SolidColorBrush x:Key="AccentBrush" Color="{StaticResource Primary}"/>
+
 </ResourceDictionary>
