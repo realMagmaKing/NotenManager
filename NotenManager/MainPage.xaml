@@ -413,12 +413,12 @@
  Padding="40">
  <Frame BackgroundColor="White" 
  CornerRadius="16" 
- Padding="40" 
+ Padding="24" 
  WidthRequest="500" 
- HeightRequest="350"
  HorizontalOptions="Center" 
  VerticalOptions="Center"
  HasShadow="True">
+ <ScrollView>
  <VerticalStackLayout Spacing="20">
  <Label Text="Neues Fach hinzufügen" FontSize="24" FontAttributes="Bold" TextColor="#1a1a1a"/>
  
@@ -449,6 +449,7 @@
  WidthRequest="120"/>
  </HorizontalStackLayout>
  </VerticalStackLayout>
+ </ScrollView>
  </Frame>
  </Grid>
 
@@ -459,12 +460,12 @@
  Padding="40">
  <Frame BackgroundColor="White" 
  CornerRadius="16" 
- Padding="40" 
- WidthRequest="500" 
- HeightRequest="550"
+ Padding="24" 
+ WidthRequest="520" 
  HorizontalOptions="Center" 
  VerticalOptions="Center"
  HasShadow="True">
+ <ScrollView>
  <VerticalStackLayout Spacing="20">
  <Label Text="Neue Note hinzufügen" FontSize="24" FontAttributes="Bold" TextColor="#1a1a1a"/>
  
@@ -514,6 +515,7 @@
  HeightRequest="45"/>
  </HorizontalStackLayout>
  </VerticalStackLayout>
+ </ScrollView>
  </Frame>
  </Grid>
 
@@ -524,17 +526,17 @@
  Padding="40">
  <Frame BackgroundColor="White" 
  CornerRadius="16" 
- Padding="40" 
- WidthRequest="500" 
- HeightRequest="550"
+ Padding="24" 
+ WidthRequest="520" 
  HorizontalOptions="Center" 
  VerticalOptions="Center"
-HasShadow="True">
+ HasShadow="True">
+ <ScrollView>
  <VerticalStackLayout Spacing="20">
-<Label Text="Note bearbeiten" FontSize="24" FontAttributes="Bold" TextColor="#1a1a1a"/>
+ <Label Text="Note bearbeiten" FontSize="24" FontAttributes="Bold" TextColor="#1a1a1a"/>
  
  <VerticalStackLayout Spacing="8">
-<Label Text="Notensart" FontSize="14" FontAttributes="Bold" TextColor="#333"/>
+ <Label Text="Notensart" FontSize="14" FontAttributes="Bold" TextColor="#333"/>
  <Entry Text="{Binding NewNoteType, Mode=TwoWay}" 
  Placeholder="z.B. Test, Hausaufgabe" 
  Margin="0,8,0,0"
@@ -591,6 +593,7 @@ HasShadow="True">
  </HorizontalStackLayout>
  </Grid>
  </VerticalStackLayout>
+ </ScrollView>
  </Frame>
  </Grid>
  </Grid>
