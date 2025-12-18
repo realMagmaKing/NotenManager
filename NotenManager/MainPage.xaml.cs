@@ -1,5 +1,4 @@
 ﻿using NotenManager.ViewModels;
-using System.ComponentModel;
 using Microsoft.Maui.ApplicationModel;
 
 namespace NotenManager;

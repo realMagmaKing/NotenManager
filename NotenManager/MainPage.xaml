@@ -37,11 +37,19 @@
  TextColor="White" 
  Margin="0,0,0,30"/>
 
- <Frame BackgroundColor="Transparent" 
+ <Frame x:Name="OverviewFrame" BackgroundColor="Transparent" 
  Padding="20,16"
  CornerRadius="10"
  HasShadow="False"
  Margin="0,0,0,10">
+ <Frame.Triggers>
+ <DataTrigger TargetType="Frame"
+ Binding="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:MainViewModel}}, Path=CurrentPage, Converter={StaticResource PageVisibilityConverter}, ConverterParameter=Overview}"
+ Value="True">
+ <Setter Property="BackgroundColor" Value="#33ffffff" />
+ <Setter Property="HasShadow" Value="True" />
+ </DataTrigger>
+ </Frame.Triggers>
  <Frame.GestureRecognizers>
  <TapGestureRecognizer Command="{Binding NavigateToOverviewCommand}"/>
  </Frame.GestureRecognizers>
@@ -51,11 +59,19 @@
  </HorizontalStackLayout>
  </Frame>
 
- <Frame BackgroundColor="Transparent" 
+ <Frame x:Name="SubjectsFrame" BackgroundColor="Transparent" 
  Padding="20,16"
  CornerRadius="10"
  HasShadow="False"
  Margin="0,0,0,10">
+ <Frame.Triggers>
+ <DataTrigger TargetType="Frame"
+ Binding="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:MainViewModel}}, Path=CurrentPage, Converter={StaticResource PageVisibilityConverter}, ConverterParameter=Subjects}"
+ Value="True">
+ <Setter Property="BackgroundColor" Value="#33ffffff" />
+ <Setter Property="HasShadow" Value="True" />
+ </DataTrigger>
+ </Frame.Triggers>
  <Frame.GestureRecognizers>
  <TapGestureRecognizer Command="{Binding NavigateToSubjectsCommand}"/>
  </Frame.GestureRecognizers>
@@ -65,10 +81,18 @@
  </HorizontalStackLayout>
  </Frame>
 
- <Frame BackgroundColor="Transparent" 
+ <Frame x:Name="SettingsFrame" BackgroundColor="Transparent" 
  Padding="20,16"
  CornerRadius="10"
  HasShadow="False">
+ <Frame.Triggers>
+ <DataTrigger TargetType="Frame"
+ Binding="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:MainViewModel}}, Path=CurrentPage, Converter={StaticResource PageVisibilityConverter}, ConverterParameter=Settings}"
+ Value="True">
+ <Setter Property="BackgroundColor" Value="#33ffffff" />
+ <Setter Property="HasShadow" Value="True" />
+ </DataTrigger>
+ </Frame.Triggers>
  <Frame.GestureRecognizers>
  <TapGestureRecognizer Command="{Binding NavigateToSettingsCommand}"/>
  </Frame.GestureRecognizers>
