@@ -3,7 +3,9 @@ using CommunityToolkit.Mvvm.Input;
 using NotenManager.Models;
 using NotenManager.Services;
 using System.Collections.ObjectModel;
-using Microcharts;
+using LiveChartsCore;
+using LiveChartsCore.SkiaSharpView;
+using LiveChartsCore.SkiaSharpView.Painting;
 using SkiaSharp;
 
 namespace NotenManager.ViewModels
@@ -64,7 +66,13 @@ namespace NotenManager.ViewModels
         private bool targetReached;
 
         [ObservableProperty]
-        private Chart gradeChart;
+        private ISeries[] series;
+
+        [ObservableProperty]
+        private Axis[] xAxes;
+
+        [ObservableProperty]
+        private Axis[] yAxes;
 
         [ObservableProperty]
         private List<ChartLegendItem> chartLegendItems;
@@ -85,7 +93,9 @@ namespace NotenManager.ViewModels
         [RelayCommand]
         private void NavigateToOverview()
         {
-            GradeChart = null;
+            Series = null;
+            XAxes = null;
+            YAxes = null;
             ChartLegendItems = null;
             CurrentPage = "Overview";
             UpdateOverallAverage();
@@ -95,7 +105,9 @@ namespace NotenManager.ViewModels
         [RelayCommand]
         private void NavigateToSubjects()
         {
-            GradeChart = null;
+            Series = null;
+            XAxes = null;
+            YAxes = null;
             ChartLegendItems = null;
             CurrentPage = "Subjects";
         }
@@ -103,7 +115,9 @@ namespace NotenManager.ViewModels
         [RelayCommand]
         private void NavigateToSettings()
         {
-            GradeChart = null;
+            Series = null;
+            XAxes = null;
+            YAxes = null;
             ChartLegendItems = null;
             CurrentPage = "Settings";
         }
@@ -213,7 +227,7 @@ namespace NotenManager.ViewModels
 
             _dataService.AddNote(SelectedSubject, newNote);
             
-            // Trigger UI refresh for the entire subject including Average
+            // Trigger UI refresh for the gesamte subject including Average
             var tempSubject = SelectedSubject;
             SelectedSubject = null;
             SelectedSubject = tempSubject;
@@ -266,7 +280,7 @@ namespace NotenManager.ViewModels
 
             _dataService.UpdateNote(SelectedSubject, _editingNote, updatedNote);
             
-            // Trigger UI refresh for the entire subject including Average
+            // Trigger UI refresh for the gesamte subject including Average
             var tempSubject = SelectedSubject;
             SelectedSubject = null;
             SelectedSubject = tempSubject;
@@ -293,7 +307,7 @@ namespace NotenManager.ViewModels
             {
                 _dataService.DeleteNote(SelectedSubject, _editingNote);
           
-     // Trigger UI refresh for the gesamte subject including Average
+     // Trigger UI refresh for die gesamte subject including Average
       var tempSubject = SelectedSubject;
          SelectedSubject = null;
                 SelectedSubject = tempSubject;
@@ -319,7 +333,7 @@ namespace NotenManager.ViewModels
             {
                 _dataService.DeleteNote(SelectedSubject, note);
                 
-                // Trigger UI refresh for the gesamte subject including Average
+                // Trigger UI refresh for die gesamte subject including Average
                 var tempSubject = SelectedSubject;
                 SelectedSubject = null;
                 SelectedSubject = tempSubject;
@@ -390,13 +404,27 @@ namespace NotenManager.ViewModels
             }
         }
 
+        private string MapSubjectColorToHex(string colorKey)
+        {
+            return colorKey switch
+            {
+                "math" => "#f5576c",
+                "bio" => "#00f2fe",
+                "info" => "#38f9d7",
+                "deutsch" => "#fee140",
+                _ => "#667eea",
+            };
+        }
+
         private void UpdateGradeChart()
         {
             // Reset first
-            GradeChart = null;
+            Series = null;
+            XAxes = null;
+            YAxes = null;
             ChartLegendItems = null;
 
-            if (SelectedSubject == null || SelectedSubject.Notes.Count == 0)
+            if (SelectedSubject == null || SelectedSubject.Notes.Count ==0)
             {
                 return;
             }
@@ -404,53 +432,63 @@ namespace NotenManager.ViewModels
             var sortedNotes = SelectedSubject.Notes.OrderBy(n => n.Date).ToList();
 
             // Create legend items with numbers and running average
-            var runningSum = 0.0;
+            var runningSum =0.0;
             var legendItems = new List<ChartLegendItem>();
-            var entries = new List<ChartEntry>();
+            var values = new List<double>();
 
-            for (int i = 0; i < sortedNotes.Count; i++)
+            for (int i =0; i < sortedNotes.Count; i++)
             {
                 var note = sortedNotes[i];
                 runningSum += note.Grade;
-                var runningAvg = runningSum / (i + 1);
+                var runningAvg = runningSum / (i +1);
 
                 legendItems.Add(new ChartLegendItem
                 {
-                    Number = i + 1,
+                    Number = i +1,
                     Note = note,
-                    Average = Math.Round(runningAvg, 2)
+                    Average = Math.Round(runningAvg,2)
                 });
 
-                var entry = new ChartEntry((float)runningAvg)
-                {
-                    Label = note.Date.ToString("dd.MM"),
-                    ValueLabel = runningAvg.ToString("F2"),
-                    Color = SKColor.Parse("#667eea"),
-                    ValueLabelColor = SKColor.Parse("#1a1a1a"),
-                    TextColor = SKColor.Parse("#999")
-                };
-
-                entries.Add(entry);
+                values.Add(runningAvg);
             }
 
             ChartLegendItems = legendItems;
 
-            // Create a single-line chart: hide points and value labels for a clean line view
-            GradeChart = new LineChart
+            var hex = MapSubjectColorToHex(SelectedSubject.Color);
+            var color = SKColor.Parse(hex);
+
+            Series = new ISeries[]
             {
-                Entries = entries,
-                BackgroundColor = SKColors.Transparent,
-                LabelTextSize = 14, // smaller x-axis labels
-                ValueLabelTextSize = 0, // hide the value labels above points
-                LineMode = LineMode.Spline,
-                LineSize = 3,
-                PointMode = PointMode.None, // no markers on points
-                PointSize = 0,
-                MinValue = 1,
-                MaxValue = 6,
-                LabelOrientation = Orientation.Horizontal,
-                ValueLabelOrientation = Orientation.Horizontal,
-                AnimationDuration = TimeSpan.FromMilliseconds(700)
+                new LineSeries<double>
+                {
+                    Values = values,
+                    Name = "Durchschnitt",
+                    Fill = null,
+                    Stroke = new SolidColorPaint(color) { StrokeThickness =3 },
+                    GeometrySize =0,
+                    LineSmoothness =0.5
+                }
+            };
+
+            XAxes = new Axis[]
+            {
+                new Axis
+                {
+                    Labels = sortedNotes.Select(n => n.Date.ToString("dd.MM")).ToArray(),
+                    TextSize =12,
+                    SeparatorsPaint = new SolidColorPaint(SKColors.LightGray) { StrokeThickness =1 }
+                }
+            };
+
+            YAxes = new Axis[]
+            {
+                new Axis
+                {
+                    MinLimit =1,
+                    MaxLimit =6,
+                    TextSize =12,
+                    SeparatorsPaint = new SolidColorPaint(SKColors.LightGray) { StrokeThickness =1 }
+                }
             };
         }
 
@@ -462,11 +500,13 @@ namespace NotenManager.ViewModels
 
 partial void OnSelectedSubjectChanged(Subject value)
 {
-    // Wichtig: Chart zuerst zurücksetzen bevor neues erstellt wird
-    GradeChart = null;
+    // Reset chart properties
+    Series = null;
+    XAxes = null;
+    YAxes = null;
     ChartLegendItems = null;
     
-    // Dann das neue Chart für das ausgewählte Fach erstellen
+    // Create new chart for selected subject
     if (value != null && CurrentPage == "Notes")
     {
   UpdateGradeChart();

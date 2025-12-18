@@ -1,592 +1,597 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-  xmlns:viewmodels="clr-namespace:NotenManager.ViewModels"
-     xmlns:models="clr-namespace:NotenManager.Models"
-      xmlns:converters="clr-namespace:NotenManager.Converters"
-       xmlns:charts="clr-namespace:Microcharts.Maui;assembly=Microcharts.Maui"
-             x:Class="NotenManager.MainPage"
-           x:DataType="viewmodels:MainViewModel">
+ xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+ xmlns:viewmodels="clr-namespace:NotenManager.ViewModels"
+ xmlns:models="clr-namespace:NotenManager.Models"
+ xmlns:converters="clr-namespace:NotenManager.Converters"
+ xmlns:lvc="clr-namespace:LiveChartsCore.SkiaSharpView.Maui;assembly=LiveChartsCore.SkiaSharpView.Maui"
+ x:Class="NotenManager.MainPage"
+ x:DataType="viewmodels:MainViewModel">
 
-    <ContentPage.Resources>
-        <converters:SubjectColorConverter x:Key="ColorConverter"/>
-        <converters:PageVisibilityConverter x:Key="PageVisibilityConverter"/>
-        <converters:IsNullConverter x:Key="IsNullConverter"/>
-        <converters:IsNotNullConverter x:Key="IsNotNullConverter"/>
-    </ContentPage.Resources>
+ <ContentPage.Resources>
+ <converters:SubjectColorConverter x:Key="ColorConverter"/>
+ <converters:PageVisibilityConverter x:Key="PageVisibilityConverter"/>
+ <converters:IsNullConverter x:Key="IsNullConverter"/>
+ <converters:IsNotNullConverter x:Key="IsNotNullConverter"/>
+ </ContentPage.Resources>
 
-    <Grid>
-        <Grid.ColumnDefinitions>
+ <Grid>
+ <Grid.ColumnDefinitions>
   <ColumnDefinition Width="280"/>
-            <ColumnDefinition Width="*"/>
+ <ColumnDefinition Width="*"/>
  </Grid.ColumnDefinitions>
 
-     <!-- Sidebar -->
-    <Grid Grid.Column="0">
-            <Grid.Background>
-           <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-           <GradientStop Color="#667eea" Offset="0.0" />
-         <GradientStop Color="#764ba2" Offset="1.0" />
-       </LinearGradientBrush>
-      </Grid.Background>
-   
-     <VerticalStackLayout Padding="20,30" Spacing="10">
-        <Label Text="📊 NotenManager" 
-      FontSize="24" 
-           FontAttributes="Bold" 
-           TextColor="White" 
-     Margin="0,0,0,30"/>
+ <!-- Sidebar -->
+ <Grid Grid.Column="0">
+ <Grid.Background>
+ <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+ <GradientStop Color="#667eea" Offset="0.0" />
+ <GradientStop Color="#764ba2" Offset="1.0" />
+ </LinearGradientBrush>
+ </Grid.Background>
 
-      <Frame BackgroundColor="Transparent" 
-         Padding="20,16"
-          CornerRadius="10"
-    HasShadow="False"
-           Margin="0,0,0,10">
-             <Frame.GestureRecognizers>
-           <TapGestureRecognizer Command="{Binding NavigateToOverviewCommand}"/>
-        </Frame.GestureRecognizers>
-          <HorizontalStackLayout Spacing="12">
-           <Label Text="🏠" FontSize="20" VerticalOptions="Center"/>
-            <Label Text="Übersicht" FontSize="15" TextColor="White" FontAttributes="Bold" VerticalOptions="Center"/>
-          </HorizontalStackLayout>
-     </Frame>
+ <VerticalStackLayout Padding="20,30" Spacing="10">
+ <Label Text="?? NotenManager" 
+ FontSize="24" 
+ FontAttributes="Bold" 
+ TextColor="White" 
+ Margin="0,0,0,30"/>
 
-       <Frame BackgroundColor="Transparent" 
-         Padding="20,16"
-        CornerRadius="10"
-              HasShadow="False"
-     Margin="0,0,0,10">
-       <Frame.GestureRecognizers>
-      <TapGestureRecognizer Command="{Binding NavigateToSubjectsCommand}"/>
-  </Frame.GestureRecognizers>
-          <HorizontalStackLayout Spacing="12">
-     <Label Text="📚" FontSize="20" VerticalOptions="Center"/>
-          <Label Text="Fächer" FontSize="15" TextColor="White" FontAttributes="Bold" VerticalOptions="Center"/>
-  </HorizontalStackLayout>
-         </Frame>
+ <Frame BackgroundColor="Transparent" 
+ Padding="20,16"
+ CornerRadius="10"
+ HasShadow="False"
+ Margin="0,0,0,10">
+ <Frame.GestureRecognizers>
+ <TapGestureRecognizer Command="{Binding NavigateToOverviewCommand}"/>
+ </Frame.GestureRecognizers>
+ <HorizontalStackLayout Spacing="12">
+ <Label Text="??" FontSize="20" VerticalOptions="Center"/>
+ <Label Text="�bersicht" FontSize="15" TextColor="White" FontAttributes="Bold" VerticalOptions="Center"/>
+ </HorizontalStackLayout>
+ </Frame>
 
-         <Frame BackgroundColor="Transparent" 
-        Padding="20,16"
-    CornerRadius="10"
-        HasShadow="False">
-    <Frame.GestureRecognizers>
-        <TapGestureRecognizer Command="{Binding NavigateToSettingsCommand}"/>
-        </Frame.GestureRecognizers>
-           <HorizontalStackLayout Spacing="12">
-    <Label Text="⚙️" FontSize="20" VerticalOptions="Center"/>
-       <Label Text="Einstellungen" FontSize="15" TextColor="White" FontAttributes="Bold" VerticalOptions="Center"/>
-         </HorizontalStackLayout>
-         </Frame>
-   </VerticalStackLayout>
-        </Grid>
+ <Frame BackgroundColor="Transparent" 
+ Padding="20,16"
+ CornerRadius="10"
+ HasShadow="False"
+ Margin="0,0,0,10">
+ <Frame.GestureRecognizers>
+ <TapGestureRecognizer Command="{Binding NavigateToSubjectsCommand}"/>
+ </Frame.GestureRecognizers>
+ <HorizontalStackLayout Spacing="12">
+ <Label Text="??" FontSize="20" VerticalOptions="Center"/>
+ <Label Text="F�cher" FontSize="15" TextColor="White" FontAttributes="Bold" VerticalOptions="Center"/>
+ </HorizontalStackLayout>
+ </Frame>
 
-        <!-- Main Content -->
-        <ScrollView Grid.Column="1" Padding="40">
-   <VerticalStackLayout Spacing="20">
-    
-<!-- Übersicht Page -->
-        <VerticalStackLayout IsVisible="{Binding CurrentPage, Converter={StaticResource PageVisibilityConverter}, ConverterParameter=Overview}" Spacing="30">
-          <Label Text="Übersicht" FontSize="42" FontAttributes="Bold" TextColor="#1a1a1a"/>
-                    
- <Frame CornerRadius="16" Padding="40" HasShadow="True" Margin="0,0,0,20">
-              <Frame.Background>
-            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-   <GradientStop Color="#667eea" Offset="0.0" />
-               <GradientStop Color="#764ba2" Offset="1.0" />
-        </LinearGradientBrush>
-     </Frame.Background>
-    <VerticalStackLayout>
-      <Label Text="Gesamtdurchschnitt" FontSize="16" TextColor="White" Opacity="0.9"/>
-   <Label Text="{Binding OverallAverage, StringFormat='{0:F1}'}" FontSize="64" FontAttributes="Bold" TextColor="White"/>
-   </VerticalStackLayout>
-      </Frame>
-
-                  <FlexLayout BindableLayout.ItemsSource="{Binding Subjects}" 
-        Wrap="Wrap" 
-     JustifyContent="Start" 
-  AlignItems="Start"
-   Direction="Row">
-              <BindableLayout.ItemTemplate>
-        <DataTemplate x:DataType="models:Subject">
-       <Frame BackgroundColor="White" 
-       CornerRadius="16" 
-            Padding="28" 
-          Margin="0,0,24,24"
-       WidthRequest="280"
-    HasShadow="True">
-   <Frame.GestureRecognizers>
- <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:MainViewModel}}, Path=NavigateToNotesCommand}" 
-           CommandParameter="{Binding .}"/>
-     </Frame.GestureRecognizers>
-         <VerticalStackLayout Spacing="12">
-    <Grid>
-          <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-     <ColumnDefinition Width="Auto"/>
-             </Grid.ColumnDefinitions>
-          <Ellipse Grid.Column="0"
- Fill="{Binding Color, Converter={StaticResource ColorConverter}}"
-            WidthRequest="60"
-       HeightRequest="60"
-         HorizontalOptions="Start"/>
-         <Label Grid.Column="1" Text="→" FontSize="20" TextColor="#999" VerticalOptions="Start"/>
-              </Grid>
-     <Label Text="{Binding Name}" FontSize="22" FontAttributes="Bold" TextColor="#1a1a1a"/>
-        <Label Text="{Binding LessonsPerWeek, StringFormat='{0} Lektionen pro Woche'}" FontSize="13" TextColor="#999"/>
-        <Label Text="{Binding Average, StringFormat='{0:F1}'}" FontSize="48" FontAttributes="Bold" TextColor="#667eea"/>
-         <Label Text="{Binding Notes.Count, StringFormat='{0} Noten'}" FontSize="12" TextColor="#aaa"/>
-         </VerticalStackLayout>
-      </Frame>
-      </DataTemplate>
-      </BindableLayout.ItemTemplate>
-                </FlexLayout>
-  </VerticalStackLayout>
-
-          <!-- Fächer Page -->
-       <VerticalStackLayout IsVisible="{Binding CurrentPage, Converter={StaticResource PageVisibilityConverter}, ConverterParameter=Subjects}" Spacing="30">
-        <Grid>
-          <Label Text="Fächer" FontSize="42" FontAttributes="Bold" TextColor="#1a1a1a" VerticalOptions="Center"/>
-     <Button Text="+ Fach hinzufügen" 
-        Command="{Binding ShowAddSubjectModalCommand}"
-     BackgroundColor="#667eea"
-       TextColor="White"
-             CornerRadius="10"
-        Padding="14,14"
-FontAttributes="Bold"
-           HorizontalOptions="End"/>
+ <Frame BackgroundColor="Transparent" 
+ Padding="20,16"
+ CornerRadius="10"
+ HasShadow="False">
+ <Frame.GestureRecognizers>
+ <TapGestureRecognizer Command="{Binding NavigateToSettingsCommand}"/>
+ </Frame.GestureRecognizers>
+ <HorizontalStackLayout Spacing="12">
+ <Label Text="??" FontSize="20" VerticalOptions="Center"/>
+ <Label Text="Einstellungen" FontSize="15" TextColor="White" FontAttributes="Bold" VerticalOptions="Center"/>
+ </HorizontalStackLayout>
+ </Frame>
+ </VerticalStackLayout>
  </Grid>
 
-       <FlexLayout BindableLayout.ItemsSource="{Binding Subjects}" 
-       Wrap="Wrap" 
-         JustifyContent="Start"
-     Direction="Row">
- <BindableLayout.ItemTemplate>
-             <DataTemplate x:DataType="models:Subject">
-   <Frame BackgroundColor="White" 
-        CornerRadius="16" 
-    Padding="32" 
-         Margin="0,0,24,24"
- WidthRequest="320"
-     HasShadow="True">
-         <VerticalStackLayout Spacing="20">
-          <Grid>
-      <Ellipse Fill="{Binding Color, Converter={StaticResource ColorConverter}}"
-    WidthRequest="60"
-             HeightRequest="60"
-        HorizontalOptions="Start"/>
-    <Button Text="✕" 
-       BackgroundColor="#ff6b6b"
-              TextColor="White"
- CornerRadius="6"
-  Padding="8,8"
-                     FontSize="14"
-     HorizontalOptions="End"
-             VerticalOptions="Start"
-      Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:MainViewModel}}, Path=DeleteSubjectCommand}"
-      CommandParameter="{Binding .}"/>
-       </Grid>
-       
-<VerticalStackLayout>
-           <Label Text="{Binding Name}" FontSize="22" FontAttributes="Bold" TextColor="#1a1a1a"/>
-     <Label Text="{Binding LessonsPerWeek, StringFormat='{0} Lektionen pro Woche'}" FontSize="13" TextColor="#999"/>
-           </VerticalStackLayout>
-
-     <BoxView HeightRequest="1" BackgroundColor="#eee"/>
-
-              <Grid>
-       <VerticalStackLayout HorizontalOptions="Start">
-   <Label Text="Durchschnitt" FontSize="12" TextColor="#999"/>
-         <Label Text="{Binding Average, StringFormat='{0:F1}'}" FontSize="32" FontAttributes="Bold" TextColor="#667eea"/>
-         </VerticalStackLayout>
- <Button Text="→" 
-      BackgroundColor="#667eea"
-    TextColor="White"
-     CornerRadius="8"
-          Padding="10,10"
-           FontSize="18"
-        HorizontalOptions="End"
-VerticalOptions="End"
-          Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:MainViewModel}}, Path=NavigateToNotesCommand}"
-           CommandParameter="{Binding .}"/>
-   </Grid>
-  </VerticalStackLayout>
-             </Frame>
- </DataTemplate>
-  </BindableLayout.ItemTemplate>
-         </FlexLayout>
-          </VerticalStackLayout>
-
-      <!-- Noten Page -->
-  <VerticalStackLayout IsVisible="{Binding CurrentPage, Converter={StaticResource PageVisibilityConverter}, ConverterParameter=Notes}" Spacing="30">
-<Button Text="← Zurück zur Übersicht"
-                 Command="{Binding NavigateToOverviewCommand}"
- BackgroundColor="Transparent"
-        TextColor="#667eea"
-          FontAttributes="Bold"
-            HorizontalOptions="Start"
-          Margin="0,0,0,10"/>
-
-         <Grid>
-    <Label Text="{Binding SelectedSubject.Name}" FontSize="42" FontAttributes="Bold" TextColor="#1a1a1a" VerticalOptions="Center"/>
-  <Ellipse Fill="{Binding SelectedSubject.Color, Converter={StaticResource ColorConverter}}"
-            WidthRequest="60"
-          HeightRequest="60"
-  HorizontalOptions="End"/>
-     </Grid>
-
-          <Grid ColumnDefinitions="*,*" ColumnSpacing="40">
-      <!-- Graph Container -->
-  <Frame Grid.Column="0" BackgroundColor="White" CornerRadius="16" Padding="28" HasShadow="True">
+ <!-- Main Content -->
+ <ScrollView Grid.Column="1" Padding="40">
+ <VerticalStackLayout Spacing="20">
+ 
+<!-- Übersicht Page -->
+ <VerticalStackLayout IsVisible="{Binding CurrentPage, Converter={StaticResource PageVisibilityConverter}, ConverterParameter=Overview}" Spacing="30">
+          <Label Text="Übersicht" FontSize="42" FontAttributes="Bold" TextColor="#1a1a1a"/>
+             
+ <Frame CornerRadius="16" Padding="40" HasShadow="True" Margin="0,0,0,20">
+ <Frame.Background>
+ <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+ <GradientStop Color="#667eea" Offset="0.0" />
+ <GradientStop Color="#764ba2" Offset="1.0" />
+ </LinearGradientBrush>
+ </Frame.Background>
  <VerticalStackLayout>
- <Label Text="Notenentwicklung" FontSize="24" FontAttributes="Bold" TextColor="#1a1a1a" Margin="0,0,0,20"/>
-       <Frame BackgroundColor="#f8f9fa" CornerRadius="12" HeightRequest="300" HasShadow="False" Padding="10">
-      <Grid>
-    <Label Text="📈 Keine Noten vorhanden" 
- FontSize="14" 
-      TextColor="#999" 
-   HorizontalOptions="Center" 
-    VerticalOptions="Center"
-      IsVisible="{Binding GradeChart, Converter={StaticResource IsNullConverter}}"/>
-  <charts:ChartView x:Name="GradeChartView" Chart="{Binding GradeChart}" 
-      HeightRequest="280"
-       IsVisible="{Binding GradeChart, Converter={StaticResource IsNotNullConverter}}"/>
-    </Grid>
-      </Frame>
-      
-     <!-- Legende -->
-     <Label Text="Legende" FontSize="14" FontAttributes="Bold" TextColor="#999" Margin="10,10,0,5"
-   IsVisible="{Binding ChartLegendItems, Converter={StaticResource IsNotNullConverter}}"/>
-<ScrollView MaximumHeightRequest="120" Margin="0,0,0,0">
-  <VerticalStackLayout BindableLayout.ItemsSource="{Binding ChartLegendItems}" 
-         Spacing="6">
-    <BindableLayout.ItemTemplate>
-  <DataTemplate x:DataType="models:ChartLegendItem">
-       <Grid ColumnDefinitions="30,100,*,50" ColumnSpacing="8" Padding="4,2">
-     <Label Grid.Column="0"
-       Text="{Binding Number}" 
-   FontSize="12" 
-   TextColor="White"
-   BackgroundColor="#667eea"
-     FontAttributes="Bold"
-  HorizontalOptions="Center"
-    VerticalOptions="Center"
-        WidthRequest="24"
-       HeightRequest="24"
-       HorizontalTextAlignment="Center"
-       VerticalTextAlignment="Center">
-<Label.Clip>
-     <EllipseGeometry Center="12,12" RadiusX="12" RadiusY="12"/>
-      </Label.Clip>
-      </Label>
-    <Label Grid.Column="1"
- Text="{Binding Note.Type}" 
-  FontSize="12" 
-          TextColor="#1a1a1a"
-     VerticalOptions="Center"/>
-   <Label Grid.Column="2"
-     Text="{Binding Note.Date, StringFormat='{0:dd.MM.yy}'}" 
-       FontSize="12" 
-            TextColor="#999"
-      VerticalOptions="Center"/>
-   <Label Grid.Column="3"
-        Text="{Binding Note.Grade, StringFormat='{0:F1}'}" 
-         FontSize="12" 
-       TextColor="#667eea"
- FontAttributes="Bold"
-   VerticalOptions="Center"
-       HorizontalTextAlignment="End"/>
-    </Grid>
-    </DataTemplate>
-  </BindableLayout.ItemTemplate>
-     </VerticalStackLayout>
-  </ScrollView>
-     </VerticalStackLayout>
-    </Frame>
-
-   <!-- Notes List -->
-    <Frame Grid.Column="1" BackgroundColor="White" CornerRadius="16" Padding="28" HasShadow="True">
-              <VerticalStackLayout Spacing="24">
-  <Grid>
-    <Label Text="Noten" FontSize="24" FontAttributes="Bold" TextColor="#1a1a1a" VerticalOptions="Center"/>
-         <Button Text="+ Neue Note"
-          Command="{Binding ShowAddNoteModalCommand}"
-         BackgroundColor="#667eea"
-             TextColor="White"
-        CornerRadius="8"
-   Padding="12,12"
- FontSize="14"
-               FontAttributes="Bold"
-            HorizontalOptions="End"/>
-       </Grid>
-
-      <ScrollView HeightRequest="400">
-     <VerticalStackLayout BindableLayout.ItemsSource="{Binding SelectedSubject.Notes}" Spacing="12">
-               <BindableLayout.ItemTemplate>
-        <DataTemplate x:DataType="models:Note">
-   <Frame BackgroundColor="#f8f9fa" 
-             CornerRadius="10" 
-Padding="16" 
-      HasShadow="False"
-   BorderColor="#667eea">
-                <Frame.GestureRecognizers>
-         <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:MainViewModel}}, Path=ShowEditNoteModalCommand}"
-              CommandParameter="{Binding .}"/>
-          </Frame.GestureRecognizers>
- <Grid ColumnDefinitions="*,Auto,Auto">
-              <VerticalStackLayout Grid.Column="0">
-    <Label Text="{Binding Type}" FontSize="15" FontAttributes="Bold" TextColor="#1a1a1a"/>
-                 <Label Text="{Binding Date, StringFormat='{0:dd. MMMM yyyy}'}" FontSize="12" TextColor="#999"/>
-    </VerticalStackLayout>
-         <Label Grid.Column="1" 
-         Text="{Binding Grade, StringFormat='{0:F1}'}" 
-           FontSize="28" 
-   FontAttributes="Bold" 
-        TextColor="#667eea" 
-      Margin="24,0"
-                 VerticalOptions="Center"/>
-           <Button Grid.Column="2" 
-      Text="⋯"
-          BackgroundColor="White"
-  TextColor="#667eea"
-     BorderColor="#ddd"
-      BorderWidth="1"
-        CornerRadius="6"
-         Padding="8,8"
-            FontSize="16"
-    VerticalOptions="Center"
-              Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:MainViewModel}}, Path=ShowEditNoteModalCommand}"
-   CommandParameter="{Binding .}"/>
-      </Grid>
-             </Frame>
-</DataTemplate>
-       </BindableLayout.ItemTemplate>
- <BindableLayout.EmptyView>
-             <VerticalStackLayout Padding="40" HorizontalOptions="Center">
-                  <Label Text="📝" FontSize="32" HorizontalOptions="Center" Margin="0,0,0,10"/>
-         <Label Text="Noch keine Noten vorhanden" FontSize="14" TextColor="#999" HorizontalOptions="Center"/>
-    </VerticalStackLayout>
-          </BindableLayout.EmptyView>
-    </VerticalStackLayout>
-        </ScrollView>
-     </VerticalStackLayout>
-      </Frame>
-          </Grid>
-      </VerticalStackLayout>
-
-      <!-- Settings Page -->
-       <VerticalStackLayout IsVisible="{Binding CurrentPage, Converter={StaticResource PageVisibilityConverter}, ConverterParameter=Settings}" Spacing="30">
-          <Label Text="Einstellungen" FontSize="42" FontAttributes="Bold" TextColor="#1a1a1a"/>
-           
-     <Frame BackgroundColor="White" CornerRadius="16" Padding="28" HasShadow="True" WidthRequest="800" HorizontalOptions="Start">
-       <VerticalStackLayout Spacing="20">
-            <Label Text="👤 Profil" FontSize="18" FontAttributes="Bold" TextColor="#1a1a1a"/>
-      <VerticalStackLayout>
-        <Label Text="Name" FontSize="14" FontAttributes="Bold" TextColor="#333"/>
-             <Entry Placeholder="Max Mustermann" BackgroundColor="#f8f9fa" Margin="0,8,0,0"/>
-                 </VerticalStackLayout>
-     </VerticalStackLayout>
-           </Frame>
-
-        <Frame BackgroundColor="White" CornerRadius="16" Padding="28" HasShadow="True" WidthRequest="800" HorizontalOptions="Start">
-   <VerticalStackLayout Spacing="20">
-         <Label Text="🎨 Erscheinungsbild" FontSize="18" FontAttributes="Bold" TextColor="#1a1a1a"/>
-           <HorizontalStackLayout Spacing="12">
-     <Label Text="Dark Mode" FontSize="14" FontAttributes="Bold" TextColor="#333" VerticalOptions="Center"/>
-  <Switch IsToggled="{Binding IsDarkMode}" Toggled="OnDarkModeToggled"/>
-</HorizontalStackLayout>
-            </VerticalStackLayout>
-        </Frame>
-    </VerticalStackLayout>
-
-            </VerticalStackLayout>
-</ScrollView>
-
-        <!-- Add Subject Modal -->
-        <Grid Grid.ColumnSpan="2" 
-              BackgroundColor="#80000000" 
-              IsVisible="{Binding IsAddSubjectModalVisible}"
-   Padding="40">
-            <Frame BackgroundColor="White" 
-                   CornerRadius="16" 
-          Padding="40" 
-  WidthRequest="500" 
-      HeightRequest="350"
-        HorizontalOptions="Center" 
-  VerticalOptions="Center"
-        HasShadow="True">
-    <VerticalStackLayout Spacing="20">
-    <Label Text="Neues Fach hinzufügen" FontSize="24" FontAttributes="Bold" TextColor="#1a1a1a"/>
-    
-           <VerticalStackLayout>
- <Label Text="Fachname" FontSize="14" FontAttributes="Bold" TextColor="#333"/>
-       <Entry Text="{Binding NewSubjectName}" Placeholder="z.B. Englisch" Margin="0,8,0,0"/>
-         </VerticalStackLayout>
-
-         <VerticalStackLayout>
-    <Label Text="Lektionen pro Woche" FontSize="14" FontAttributes="Bold" TextColor="#333"/>
-           <Entry Text="{Binding NewSubjectLessons}" Keyboard="Numeric" Placeholder="3" Margin="0,8,0,0"/>
-      </VerticalStackLayout>
-
-      <HorizontalStackLayout Spacing="12" HorizontalOptions="End" Margin="0,20,0,0">
-         <Button Text="Abbrechen" 
-     Command="{Binding CloseAddSubjectModalCommand}"
-     BackgroundColor="#f0f0f0"
-              TextColor="#333"
-            CornerRadius="8"
-   Padding="12,12"
-         WidthRequest="120"/>
-      <Button Text="Hinzufügen" 
-           Command="{Binding AddSubjectCommand}"
-      BackgroundColor="#667eea"
-       TextColor="White"
-           CornerRadius="8"
-        Padding="12,12"
-         WidthRequest="120"/>
-       </HorizontalStackLayout>
-       </VerticalStackLayout>
-            </Frame>
-      </Grid>
-
-        <!-- Add Note Modal -->
-        <Grid Grid.ColumnSpan="2" 
-              BackgroundColor="#80000000" 
-              IsVisible="{Binding IsAddNoteModalVisible}"
-    Padding="40">
-    <Frame BackgroundColor="White" 
-  CornerRadius="16" 
-         Padding="40" 
-  WidthRequest="500" 
-    HeightRequest="550"
-   HorizontalOptions="Center" 
-         VerticalOptions="Center"
- HasShadow="True">
-      <VerticalStackLayout Spacing="20">
- <Label Text="Neue Note hinzufügen" FontSize="24" FontAttributes="Bold" TextColor="#1a1a1a"/>
-      
-    <VerticalStackLayout Spacing="8">
-   <Label Text="Notensart" FontSize="14" FontAttributes="Bold" TextColor="#333"/>
-   <Entry Text="{Binding NewNoteType}" 
-      Placeholder="z.B. Test, Hausaufgabe" 
-      Margin="0,8,0,0"
-     BackgroundColor="#f8f9fa"
-   HeightRequest="45"/>
-     </VerticalStackLayout>
-
-   <VerticalStackLayout Spacing="8">
-   <Label Text="Note (1-6)" FontSize="14" FontAttributes="Bold" TextColor="#333"/>
-  <Entry Text="{Binding NewNoteGrade, Mode=TwoWay}" 
-       Keyboard="Numeric" 
-     Placeholder="2.5" 
- Margin="0,8,0,0"
-         BackgroundColor="#f8f9fa"
-     HeightRequest="45"/>
-        </VerticalStackLayout>
-
-          <VerticalStackLayout Spacing="8">
-       <Label Text="Datum" FontSize="14" FontAttributes="Bold" TextColor="#333"/>
-       <DatePicker Date="{Binding NewNoteDate, Mode=TwoWay}" 
-   Margin="0,8,0,0"
-        BackgroundColor="#f8f9fa"
-       HeightRequest="45"/>
-        </VerticalStackLayout>
-
-          <HorizontalStackLayout Spacing="12" HorizontalOptions="End" Margin="0,30,0,0">
-    <Button Text="Abbrechen" 
-   Command="{Binding CloseAddNoteModalCommand}"
- BackgroundColor="#f0f0f0"
-     TextColor="#333"
-        CornerRadius="8"
-           Padding="12,12"
-       WidthRequest="120"
-      HeightRequest="45"/>
-        <Button Text="Hinzufügen" 
-       Command="{Binding AddNoteCommand}"
-     BackgroundColor="#667eea"
- TextColor="White"
-   CornerRadius="8"
-   Padding="12,12"
-           WidthRequest="120"
-HeightRequest="45"/>
-</HorizontalStackLayout>
-        </VerticalStackLayout>
+ <Label Text="Gesamtdurchschnitt" FontSize="16" TextColor="White" Opacity="0.9"/>
+ <Label Text="{Binding OverallAverage, StringFormat='{0:F1}'}" FontSize="64" FontAttributes="Bold" TextColor="White"/>
+ </VerticalStackLayout>
  </Frame>
-        </Grid>
 
-     <!-- Edit Note Modal -->
-        <Grid Grid.ColumnSpan="2" 
-   BackgroundColor="#80000000" 
-      IsVisible="{Binding IsEditNoteModalVisible}"
-    Padding="40">
-            <Frame BackgroundColor="White" 
-  CornerRadius="16" 
-        Padding="40" 
- WidthRequest="500" 
-        HeightRequest="550"
-           HorizontalOptions="Center" 
-     VerticalOptions="Center"
-HasShadow="True">
-     <VerticalStackLayout Spacing="20">
-<Label Text="Note bearbeiten" FontSize="24" FontAttributes="Bold" TextColor="#1a1a1a"/>
-  
- <VerticalStackLayout Spacing="8">
-<Label Text="Notensart" FontSize="14" FontAttributes="Bold" TextColor="#333"/>
-    <Entry Text="{Binding NewNoteType, Mode=TwoWay}" 
-      Placeholder="z.B. Test, Hausaufgabe" 
- Margin="0,8,0,0"
-      BackgroundColor="#f8f9fa"
-          HeightRequest="45"/>
-    </VerticalStackLayout>
-
-    <VerticalStackLayout Spacing="8">
-      <Label Text="Note (1-6)" FontSize="14" FontAttributes="Bold" TextColor="#333"/>
-    <Entry Text="{Binding NewNoteGrade, Mode=TwoWay}" 
-  Keyboard="Numeric" 
-        Placeholder="2.5" 
-    Margin="0,8,0,0"
-     BackgroundColor="#f8f9fa"
-  HeightRequest="45"/>
-        </VerticalStackLayout>
-
-    <VerticalStackLayout Spacing="8">
-    <Label Text="Datum" FontSize="14" FontAttributes="Bold" TextColor="#333"/>
-     <DatePicker Date="{Binding NewNoteDate, Mode=TwoWay}" 
-  Margin="0,8,0,0"
-   BackgroundColor="#f8f9fa"
-     HeightRequest="45"/>
+ <FlexLayout BindableLayout.ItemsSource="{Binding Subjects}" 
+ Wrap="Wrap" 
+ JustifyContent="Start" 
+ AlignItems="Start"
+ Direction="Row">
+ <BindableLayout.ItemTemplate>
+ <DataTemplate x:DataType="models:Subject">
+ <Frame BackgroundColor="White" 
+ CornerRadius="16" 
+ Padding="28" 
+ Margin="0,0,24,24"
+ WidthRequest="280"
+ HasShadow="True">
+ <Frame.GestureRecognizers>
+ <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:MainViewModel}}, Path=NavigateToNotesCommand}" 
+ CommandParameter="{Binding .}"/>
+ </Frame.GestureRecognizers>
+ <VerticalStackLayout Spacing="12">
+ <Grid>
+ <Grid.ColumnDefinitions>
+ <ColumnDefinition Width="*"/>
+ <ColumnDefinition Width="Auto"/>
+ </Grid.ColumnDefinitions>
+ <Ellipse Grid.Column="0"
+ Fill="{Binding Color, Converter={StaticResource ColorConverter}}"
+ WidthRequest="60"
+ HeightRequest="60"
+ HorizontalOptions="Start"/>
+ <Label Grid.Column="1" Text="?" FontSize="20" TextColor="#999" VerticalOptions="Start"/>
+ </Grid>
+ <Label Text="{Binding Name}" FontSize="22" FontAttributes="Bold" TextColor="#1a1a1a"/>
+ <Label Text="{Binding LessonsPerWeek, StringFormat='{0} Lektionen pro Woche'}" FontSize="13" TextColor="#999"/>
+ <Label Text="{Binding Average, StringFormat='{0:F1}'}" FontSize="48" FontAttributes="Bold" TextColor="#667eea"/>
+ <Label Text="{Binding Notes.Count, StringFormat='{0} Noten'}" FontSize="12" TextColor="#aaa"/>
+ </VerticalStackLayout>
+ </Frame>
+ </DataTemplate>
+ </BindableLayout.ItemTemplate>
+ </FlexLayout>
  </VerticalStackLayout>
 
-   <Grid Margin="0,30,0,0">
-   <Button Text="Löschen" 
-    Command="{Binding DeleteNoteFromModalCommand}"
-               BackgroundColor="#ff6b6b"
-               TextColor="White"
+ <!-- F�cher Page -->
+ <VerticalStackLayout IsVisible="{Binding CurrentPage, Converter={StaticResource PageVisibilityConverter}, ConverterParameter=Subjects}" Spacing="30">
+ <Grid>
+ <Label Text="F�cher" FontSize="42" FontAttributes="Bold" TextColor="#1a1a1a" VerticalOptions="Center"/>
+ <Button Text="+ Fach hinzuf�gen" 
+ Command="{Binding ShowAddSubjectModalCommand}"
+ BackgroundColor="#667eea"
+ TextColor="White"
+ CornerRadius="10"
+ Padding="14,14"
+FontAttributes="Bold"
+ HorizontalOptions="End"/>
+ </Grid>
+
+ <FlexLayout BindableLayout.ItemsSource="{Binding Subjects}" 
+ Wrap="Wrap" 
+ JustifyContent="Start"
+ Direction="Row">
+ <BindableLayout.ItemTemplate>
+ <DataTemplate x:DataType="models:Subject">
+ <Frame BackgroundColor="White" 
+ CornerRadius="16" 
+ Padding="32" 
+ Margin="0,0,24,24"
+ WidthRequest="320"
+ HasShadow="True">
+ <VerticalStackLayout Spacing="20">
+ <Grid>
+ <Ellipse Fill="{Binding Color, Converter={StaticResource ColorConverter}}"
+ WidthRequest="60"
+ HeightRequest="60"
+ HorizontalOptions="Start"/>
+ <Button Text="?" 
+ BackgroundColor="#ff6b6b"
+ TextColor="White"
+ CornerRadius="6"
+ Padding="8,8"
+ FontSize="14"
+ HorizontalOptions="End"
+ VerticalOptions="Start"
+ Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:MainViewModel}}, Path=DeleteSubjectCommand}"
+ CommandParameter="{Binding .}"/>
+ </Grid>
+ 
+<VerticalStackLayout>
+ <Label Text="{Binding Name}" FontSize="22" FontAttributes="Bold" TextColor="#1a1a1a"/>
+ <Label Text="{Binding LessonsPerWeek, StringFormat='{0} Lektionen pro Woche'}" FontSize="13" TextColor="#999"/>
+ </VerticalStackLayout>
+
+ <BoxView HeightRequest="1" BackgroundColor="#eee"/>
+
+ <Grid>
+ <VerticalStackLayout HorizontalOptions="Start">
+ <Label Text="Durchschnitt" FontSize="12" TextColor="#999"/>
+ <Label Text="{Binding Average, StringFormat='{0:F1}'}" FontSize="32" FontAttributes="Bold" TextColor="#667eea"/>
+ </VerticalStackLayout>
+ <Button Text="?" 
+ BackgroundColor="#667eea"
+ TextColor="White"
  CornerRadius="8"
-  Padding="12,12"
-               WidthRequest="120"
-   HeightRequest="45"
-   HorizontalOptions="Start"/>
-       
-  <HorizontalStackLayout Spacing="12" HorizontalOptions="End">
-           <Button Text="Abbrechen" 
-       Command="{Binding CloseEditNoteModalCommand}"
-                BackgroundColor="#f0f0f0"
-    TextColor="#333"
-         CornerRadius="8"
-         Padding="12,12"
-        WidthRequest="120"
-  HeightRequest="45"/>
-           <Button Text="Speichern" 
-  Command="{Binding UpdateNoteCommand}"
-       BackgroundColor="#667eea"
-      TextColor="White"
-       CornerRadius="8"
-      Padding="12,12"
-        WidthRequest="120"
-              HeightRequest="45"/>
-       </HorizontalStackLayout>
-   </Grid>
-    </VerticalStackLayout>
-          </Frame>
-        </Grid>
-    </Grid>
+ Padding="10,10"
+ FontSize="18"
+ HorizontalOptions="End"
+VerticalOptions="End"
+ Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:MainViewModel}}, Path=NavigateToNotesCommand}"
+ CommandParameter="{Binding .}"/>
+ </Grid>
+ </VerticalStackLayout>
+ </Frame>
+ </DataTemplate>
+ </BindableLayout.ItemTemplate>
+ </FlexLayout>
+ </VerticalStackLayout>
+
+ <!-- Noten Page -->
+ <VerticalStackLayout IsVisible="{Binding CurrentPage, Converter={StaticResource PageVisibilityConverter}, ConverterParameter=Notes}" Spacing="30">
+<Button Text="? Zur�ck zur �bersicht"
+ Command="{Binding NavigateToOverviewCommand}"
+ BackgroundColor="Transparent"
+ TextColor="#667eea"
+ FontAttributes="Bold"
+ HorizontalOptions="Start"
+ Margin="0,0,0,10"/>
+
+ <Grid>
+ <Label Text="{Binding SelectedSubject.Name}" FontSize="42" FontAttributes="Bold" TextColor="#1a1a1a" VerticalOptions="Center"/>
+ <Ellipse Fill="{Binding SelectedSubject.Color, Converter={StaticResource ColorConverter}}"
+ WidthRequest="60"
+ HeightRequest="60"
+ HorizontalOptions="End"/>
+ </Grid>
+
+ <Grid ColumnDefinitions="*,*" ColumnSpacing="40">
+ <!-- Graph Container -->
+ <Frame Grid.Column="0" BackgroundColor="White" CornerRadius="16" Padding="28" HasShadow="True">
+ <VerticalStackLayout>
+ <Label Text="Notenentwicklung" FontSize="24" FontAttributes="Bold" TextColor="#1a1a1a" Margin="0,0,0,20"/>
+ 
+ <!-- LiveCharts CartesianChart with integrated Y-axis -->
+ <lvc:CartesianChart Series="{Binding Series}"
+ XAxes="{Binding XAxes}"
+ YAxes="{Binding YAxes}"
+ HeightRequest="300"
+ TooltipPosition="Top"
+ BackgroundColor="#f8f9fa"/>
+ 
+ <!-- Legende -->
+ <Label Text="Legende" FontSize="14" FontAttributes="Bold" TextColor="#999" Margin="10,10,0,5"
+ IsVisible="{Binding ChartLegendItems, Converter={StaticResource IsNotNullConverter}}"/>
+ <ScrollView MaximumHeightRequest="120" Margin="0,0,0,0">
+ <VerticalStackLayout BindableLayout.ItemsSource="{Binding ChartLegendItems}" 
+ Spacing="6">
+ <BindableLayout.ItemTemplate>
+ <DataTemplate x:DataType="models:ChartLegendItem">
+ <Grid ColumnDefinitions="30,100,*,50,60" ColumnSpacing="8" Padding="4,2">
+ <Grid.GestureRecognizers>
+ <TapGestureRecognizer Tapped="OnLegendItemTapped" CommandParameter="{Binding .}" />
+ </Grid.GestureRecognizers>
+ <Label Grid.Column="0"
+ Text="{Binding Number}" 
+ FontSize="12" 
+ TextColor="White"
+ BackgroundColor="#667eea"
+ FontAttributes="Bold"
+ HorizontalOptions="Center"
+ VerticalOptions="Center"
+ WidthRequest="24"
+ HeightRequest="24"
+ HorizontalTextAlignment="Center"
+ VerticalTextAlignment="Center">
+ <Label.Clip>
+ <EllipseGeometry Center="12,12" RadiusX="12" RadiusY="12"/>
+ </Label.Clip>
+ </Label>
+ <Label Grid.Column="1"
+ Text="{Binding Note.Type}" 
+ FontSize="12" 
+ TextColor="#1a1a1a"
+ VerticalOptions="Center"/>
+ <Label Grid.Column="2"
+ Text="{Binding Note.Date, StringFormat='{0:dd.MM.yy}'}" 
+ FontSize="12" 
+ TextColor="#999"
+ VerticalOptions="Center"/>
+ <Label Grid.Column="3"
+ Text="{Binding Note.Grade, StringFormat='{0:F1}'}" 
+ FontSize="12" 
+ TextColor="#667eea"
+ FontAttributes="Bold"
+ VerticalOptions="Center"
+ HorizontalTextAlignment="End"/>
+ <Label Grid.Column="4"
+ Text="{Binding Average, StringFormat='� {0:F2}'}" 
+ FontSize="12" 
+ TextColor="#667eea"
+ FontAttributes="Bold"
+ VerticalOptions="Center"
+ HorizontalTextAlignment="End"/>
+ </Grid>
+ </DataTemplate>
+ </BindableLayout.ItemTemplate>
+ </VerticalStackLayout>
+ </ScrollView>
+ </VerticalStackLayout>
+ </Frame>
+
+ <!-- Notes List -->
+ <Frame Grid.Column="1" BackgroundColor="White" CornerRadius="16" Padding="28" HasShadow="True">
+ <VerticalStackLayout Spacing="24">
+ <Grid>
+ <Label Text="Noten" FontSize="24" FontAttributes="Bold" TextColor="#1a1a1a" VerticalOptions="Center"/>
+ <Button Text="+ Neue Note"
+ Command="{Binding ShowAddNoteModalCommand}"
+ BackgroundColor="#667eea"
+ TextColor="White"
+ CornerRadius="8"
+ Padding="12,12"
+ FontSize="14"
+ FontAttributes="Bold"
+ HorizontalOptions="End"/>
+ </Grid>
+
+ <ScrollView HeightRequest="400">
+ <VerticalStackLayout BindableLayout.ItemsSource="{Binding SelectedSubject.Notes}" Spacing="12">
+ <BindableLayout.ItemTemplate>
+ <DataTemplate x:DataType="models:Note">
+ <Frame BackgroundColor="#f8f9fa" 
+ CornerRadius="10" 
+Padding="16" 
+ HasShadow="False"
+ BorderColor="#667eea">
+ <Frame.GestureRecognizers>
+ <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:MainViewModel}}, Path=ShowEditNoteModalCommand}"
+ CommandParameter="{Binding .}"/>
+ </Frame.GestureRecognizers>
+ <Grid ColumnDefinitions="*,Auto,Auto">
+ <VerticalStackLayout Grid.Column="0">
+ <Label Text="{Binding Type}" FontSize="15" FontAttributes="Bold" TextColor="#1a1a1a"/>
+ <Label Text="{Binding Date, StringFormat='{0:dd. MMMM yyyy}'}" FontSize="12" TextColor="#999"/>
+ </VerticalStackLayout>
+ <Label Grid.Column="1" 
+ Text="{Binding Grade, StringFormat='{0:F1}'}" 
+ FontSize="28" 
+ FontAttributes="Bold" 
+ TextColor="#667eea" 
+ Margin="24,0"
+ VerticalOptions="Center"/>
+ <Button Grid.Column="2" 
+ Text="?"
+ BackgroundColor="White"
+ TextColor="#667eea"
+ BorderColor="#ddd"
+ BorderWidth="1"
+ CornerRadius="6"
+ Padding="8,8"
+ FontSize="16"
+ VerticalOptions="Center"
+ Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:MainViewModel}}, Path=ShowEditNoteModalCommand}"
+ CommandParameter="{Binding .}"/>
+ </Grid>
+ </Frame>
+</DataTemplate>
+ </BindableLayout.ItemTemplate>
+ <BindableLayout.EmptyView>
+ <VerticalStackLayout Padding="40" HorizontalOptions="Center">
+ <Label Text="??" FontSize="32" HorizontalOptions="Center" Margin="0,0,0,10"/>
+ <Label Text="Noch keine Noten vorhanden" FontSize="14" TextColor="#999" HorizontalOptions="Center"/>
+ </VerticalStackLayout>
+ </BindableLayout.EmptyView>
+ </VerticalStackLayout>
+ </ScrollView>
+ </VerticalStackLayout>
+ </Frame>
+ </Grid>
+ </VerticalStackLayout>
+
+ <!-- Settings Page -->
+ <VerticalStackLayout IsVisible="{Binding CurrentPage, Converter={StaticResource PageVisibilityConverter}, ConverterParameter=Settings}" Spacing="30">
+ <Label Text="Einstellungen" FontSize="42" FontAttributes="Bold" TextColor="#1a1a1a"/>
+  
+ <Frame BackgroundColor="White" CornerRadius="16" Padding="28" HasShadow="True" WidthRequest="800" HorizontalOptions="Start">
+ <VerticalStackLayout Spacing="20">
+ <Label Text="?? Profil" FontSize="18" FontAttributes="Bold" TextColor="#1a1a1a"/>
+ <VerticalStackLayout>
+ <Label Text="Name" FontSize="14" FontAttributes="Bold" TextColor="#333"/>
+ <Entry Placeholder="Max Mustermann" BackgroundColor="#f8f9fa" Margin="0,8,0,0"/>
+ </VerticalStackLayout>
+ </VerticalStackLayout>
+ </Frame>
+
+ <Frame BackgroundColor="White" CornerRadius="16" Padding="28" HasShadow="True" WidthRequest="800" HorizontalOptions="Start">
+ <VerticalStackLayout Spacing="20">
+ <Label Text="?? Erscheinungsbild" FontSize="18" FontAttributes="Bold" TextColor="#1a1a1a"/>
+ <HorizontalStackLayout Spacing="12">
+ <Label Text="Dark Mode" FontSize="14" FontAttributes="Bold" TextColor="#333" VerticalOptions="Center"/>
+ <Switch IsToggled="{Binding IsDarkMode}" Toggled="OnDarkModeToggled"/>
+ </HorizontalStackLayout>
+ </VerticalStackLayout>
+ </Frame>
+ </VerticalStackLayout>
+
+ </VerticalStackLayout>
+</ScrollView>
+
+ <!-- Add Subject Modal -->
+ <Grid Grid.ColumnSpan="2" 
+ BackgroundColor="#80000000" 
+ IsVisible="{Binding IsAddSubjectModalVisible}"
+ Padding="40">
+ <Frame BackgroundColor="White" 
+ CornerRadius="16" 
+ Padding="40" 
+ WidthRequest="500" 
+ HeightRequest="350"
+ HorizontalOptions="Center" 
+ VerticalOptions="Center"
+ HasShadow="True">
+ <VerticalStackLayout Spacing="20">
+ <Label Text="Neues Fach hinzuf�gen" FontSize="24" FontAttributes="Bold" TextColor="#1a1a1a"/>
+ 
+ <VerticalStackLayout>
+ <Label Text="Fachname" FontSize="14" FontAttributes="Bold" TextColor="#333"/>
+ <Entry Text="{Binding NewSubjectName}" Placeholder="z.B. Englisch" Margin="0,8,0,0"/>
+ </VerticalStackLayout>
+
+ <VerticalStackLayout>
+ <Label Text="Lektionen pro Woche" FontSize="14" FontAttributes="Bold" TextColor="#333"/>
+ <Entry Text="{Binding NewSubjectLessons}" Keyboard="Numeric" Placeholder="3" Margin="0,8,0,0"/>
+ </VerticalStackLayout>
+
+ <HorizontalStackLayout Spacing="12" HorizontalOptions="End" Margin="0,20,0,0">
+ <Button Text="Abbrechen" 
+ Command="{Binding CloseAddSubjectModalCommand}"
+ BackgroundColor="#f0f0f0"
+ TextColor="#333"
+ CornerRadius="8"
+ Padding="12,12"
+ WidthRequest="120"/>
+ <Button Text="Hinzuf�gen" 
+ Command="{Binding AddSubjectCommand}"
+ BackgroundColor="#667eea"
+ TextColor="White"
+ CornerRadius="8"
+ Padding="12,12"
+ WidthRequest="120"/>
+ </HorizontalStackLayout>
+ </VerticalStackLayout>
+ </Frame>
+ </Grid>
+
+ <!-- Add Note Modal -->
+ <Grid Grid.ColumnSpan="2" 
+ BackgroundColor="#80000000" 
+ IsVisible="{Binding IsAddNoteModalVisible}"
+ Padding="40">
+ <Frame BackgroundColor="White" 
+ CornerRadius="16" 
+ Padding="40" 
+ WidthRequest="500" 
+ HeightRequest="550"
+ HorizontalOptions="Center" 
+ VerticalOptions="Center"
+ HasShadow="True">
+ <VerticalStackLayout Spacing="20">
+ <Label Text="Neue Note hinzuf�gen" FontSize="24" FontAttributes="Bold" TextColor="#1a1a1a"/>
+ 
+ <VerticalStackLayout Spacing="8">
+ <Label Text="Notensart" FontSize="14" FontAttributes="Bold" TextColor="#333"/>
+ <Entry Text="{Binding NewNoteType}" 
+ Placeholder="z.B. Test, Hausaufgabe" 
+ Margin="0,8,0,0"
+ BackgroundColor="#f8f9fa"
+ HeightRequest="45"/>
+ </VerticalStackLayout>
+
+ <VerticalStackLayout Spacing="8">
+ <Label Text="Note (1-6)" FontSize="14" FontAttributes="Bold" TextColor="#333"/>
+ <Entry Text="{Binding NewNoteGrade, Mode=TwoWay}" 
+ Keyboard="Numeric" 
+ Placeholder="2.5" 
+ Margin="0,8,0,0"
+ BackgroundColor="#f8f9fa"
+ HeightRequest="45"/>
+ </VerticalStackLayout>
+
+ <VerticalStackLayout Spacing="8">
+ <Label Text="Datum" FontSize="14" FontAttributes="Bold" TextColor="#333"/>
+ <DatePicker Date="{Binding NewNoteDate, Mode=TwoWay}" 
+ Margin="0,8,0,0"
+ BackgroundColor="#f8f9fa"
+ HeightRequest="45"/>
+ </VerticalStackLayout>
+
+ <HorizontalStackLayout Spacing="12" HorizontalOptions="End" Margin="0,30,0,0">
+ <Button Text="Abbrechen" 
+ Command="{Binding CloseAddNoteModalCommand}"
+ BackgroundColor="#f0f0f0"
+ TextColor="#333"
+ CornerRadius="8"
+ Padding="12,12"
+ WidthRequest="120"
+ HeightRequest="45"/>
+ <Button Text="Hinzuf�gen" 
+ Command="{Binding AddNoteCommand}"
+ BackgroundColor="#667eea"
+ TextColor="White"
+ CornerRadius="8"
+ Padding="12,12"
+ WidthRequest="120"
+ HeightRequest="45"/>
+ </HorizontalStackLayout>
+ </VerticalStackLayout>
+ </Frame>
+ </Grid>
+
+ <!-- Edit Note Modal -->
+ <Grid Grid.ColumnSpan="2" 
+ BackgroundColor="#80000000" 
+ IsVisible="{Binding IsEditNoteModalVisible}"
+ Padding="40">
+ <Frame BackgroundColor="White" 
+ CornerRadius="16" 
+ Padding="40" 
+ WidthRequest="500" 
+ HeightRequest="550"
+ HorizontalOptions="Center" 
+ VerticalOptions="Center"
+HasShadow="True">
+ <VerticalStackLayout Spacing="20">
+<Label Text="Note bearbeiten" FontSize="24" FontAttributes="Bold" TextColor="#1a1a1a"/>
+ 
+ <VerticalStackLayout Spacing="8">
+<Label Text="Notensart" FontSize="14" FontAttributes="Bold" TextColor="#333"/>
+ <Entry Text="{Binding NewNoteType, Mode=TwoWay}" 
+ Placeholder="z.B. Test, Hausaufgabe" 
+ Margin="0,8,0,0"
+ BackgroundColor="#f8f9fa"
+ HeightRequest="45"/>
+ </VerticalStackLayout>
+
+ <VerticalStackLayout Spacing="8">
+ <Label Text="Note (1-6)" FontSize="14" FontAttributes="Bold" TextColor="#333"/>
+ <Entry Text="{Binding NewNoteGrade, Mode=TwoWay}" 
+ Keyboard="Numeric" 
+ Placeholder="2.5" 
+ Margin="0,8,0,0"
+ BackgroundColor="#f8f9fa"
+ HeightRequest="45"/>
+ </VerticalStackLayout>
+
+ <VerticalStackLayout Spacing="8">
+ <Label Text="Datum" FontSize="14" FontAttributes="Bold" TextColor="#333"/>
+ <DatePicker Date="{Binding NewNoteDate, Mode=TwoWay}" 
+ Margin="0,8,0,0"
+ BackgroundColor="#f8f9fa"
+ HeightRequest="45"/>
+ </VerticalStackLayout>
+
+ <Grid Margin="0,30,0,0">
+ <Button Text="L�schen" 
+ Command="{Binding DeleteNoteFromModalCommand}"
+ BackgroundColor="#ff6b6b"
+ TextColor="White"
+ CornerRadius="8"
+ Padding="12,12"
+ WidthRequest="120"
+ HeightRequest="45"
+ HorizontalOptions="Start"/>
+ 
+ <HorizontalStackLayout Spacing="12" HorizontalOptions="End">
+ <Button Text="Abbrechen" 
+ Command="{Binding CloseEditNoteModalCommand}"
+ BackgroundColor="#f0f0f0"
+ TextColor="#333"
+ CornerRadius="8"
+ Padding="12,12"
+ WidthRequest="120"
+ HeightRequest="45"/>
+ <Button Text="Speichern" 
+ Command="{Binding UpdateNoteCommand}"
+ BackgroundColor="#667eea"
+ TextColor="White"
+ CornerRadius="8"
+ Padding="12,12"
+ WidthRequest="120"
+ HeightRequest="45"/>
+ </HorizontalStackLayout>
+ </Grid>
+ </VerticalStackLayout>
+ </Frame>
+ </Grid>
+ </Grid>
 </ContentPage>
