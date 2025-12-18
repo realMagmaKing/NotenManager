@@ -17,7 +17,7 @@
 
  <Grid>
  <Grid.ColumnDefinitions>
-  <ColumnDefinition Width="280"/>
+ <ColumnDefinition Width="280"/>
  <ColumnDefinition Width="*"/>
  </Grid.ColumnDefinitions>
 
@@ -31,7 +31,7 @@
  </Grid.Background>
 
  <VerticalStackLayout Padding="20,30" Spacing="10">
- <Label Text="?? NotenManager" 
+ <Label Text="📊 NotenManager" 
  FontSize="24" 
  FontAttributes="Bold" 
  TextColor="White" 
@@ -46,8 +46,8 @@
  <TapGestureRecognizer Command="{Binding NavigateToOverviewCommand}"/>
  </Frame.GestureRecognizers>
  <HorizontalStackLayout Spacing="12">
- <Label Text="??" FontSize="20" VerticalOptions="Center"/>
- <Label Text="�bersicht" FontSize="15" TextColor="White" FontAttributes="Bold" VerticalOptions="Center"/>
+ <Label Text="🏠" FontSize="20" VerticalOptions="Center"/>
+ <Label Text="Übersicht" FontSize="15" TextColor="White" FontAttributes="Bold" VerticalOptions="Center"/>
  </HorizontalStackLayout>
  </Frame>
 
@@ -60,8 +60,8 @@
  <TapGestureRecognizer Command="{Binding NavigateToSubjectsCommand}"/>
  </Frame.GestureRecognizers>
  <HorizontalStackLayout Spacing="12">
- <Label Text="??" FontSize="20" VerticalOptions="Center"/>
- <Label Text="F�cher" FontSize="15" TextColor="White" FontAttributes="Bold" VerticalOptions="Center"/>
+ <Label Text="📚" FontSize="20" VerticalOptions="Center"/>
+ <Label Text="Fächer" FontSize="15" TextColor="White" FontAttributes="Bold" VerticalOptions="Center"/>
  </HorizontalStackLayout>
  </Frame>
 
@@ -73,7 +73,7 @@
  <TapGestureRecognizer Command="{Binding NavigateToSettingsCommand}"/>
  </Frame.GestureRecognizers>
  <HorizontalStackLayout Spacing="12">
- <Label Text="??" FontSize="20" VerticalOptions="Center"/>
+ <Label Text="⚙️" FontSize="20" VerticalOptions="Center"/>
  <Label Text="Einstellungen" FontSize="15" TextColor="White" FontAttributes="Bold" VerticalOptions="Center"/>
  </HorizontalStackLayout>
  </Frame>
@@ -86,8 +86,8 @@
  
 <!-- Übersicht Page -->
  <VerticalStackLayout IsVisible="{Binding CurrentPage, Converter={StaticResource PageVisibilityConverter}, ConverterParameter=Overview}" Spacing="30">
-          <Label Text="Übersicht" FontSize="42" FontAttributes="Bold" TextColor="#1a1a1a"/>
-             
+ <Label Text="Übersicht" FontSize="42" FontAttributes="Bold" TextColor="#1a1a1a"/>
+ 
  <Frame CornerRadius="16" Padding="40" HasShadow="True" Margin="0,0,0,20">
  <Frame.Background>
  <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
@@ -129,7 +129,7 @@
  WidthRequest="60"
  HeightRequest="60"
  HorizontalOptions="Start"/>
- <Label Grid.Column="1" Text="?" FontSize="20" TextColor="#999" VerticalOptions="Start"/>
+ <Label Grid.Column="1" Text="→" FontSize="20" TextColor="#999" VerticalOptions="Start"/>
  </Grid>
  <Label Text="{Binding Name}" FontSize="22" FontAttributes="Bold" TextColor="#1a1a1a"/>
  <Label Text="{Binding LessonsPerWeek, StringFormat='{0} Lektionen pro Woche'}" FontSize="13" TextColor="#999"/>
@@ -142,17 +142,17 @@
  </FlexLayout>
  </VerticalStackLayout>
 
- <!-- F�cher Page -->
+ <!-- Fächer Page -->
  <VerticalStackLayout IsVisible="{Binding CurrentPage, Converter={StaticResource PageVisibilityConverter}, ConverterParameter=Subjects}" Spacing="30">
  <Grid>
- <Label Text="F�cher" FontSize="42" FontAttributes="Bold" TextColor="#1a1a1a" VerticalOptions="Center"/>
- <Button Text="+ Fach hinzuf�gen" 
+ <Label Text="Fächer" FontSize="42" FontAttributes="Bold" TextColor="#1a1a1a" VerticalOptions="Center"/>
+ <Button Text="+ Fach hinzufügen" 
  Command="{Binding ShowAddSubjectModalCommand}"
  BackgroundColor="#667eea"
  TextColor="White"
  CornerRadius="10"
  Padding="14,14"
-FontAttributes="Bold"
+ FontAttributes="Bold"
  HorizontalOptions="End"/>
  </Grid>
 
@@ -174,7 +174,7 @@ FontAttributes="Bold"
  WidthRequest="60"
  HeightRequest="60"
  HorizontalOptions="Start"/>
- <Button Text="?" 
+ <Button Text="✕" 
  BackgroundColor="#ff6b6b"
  TextColor="White"
  CornerRadius="6"
@@ -198,14 +198,14 @@ FontAttributes="Bold"
  <Label Text="Durchschnitt" FontSize="12" TextColor="#999"/>
  <Label Text="{Binding Average, StringFormat='{0:F1}'}" FontSize="32" FontAttributes="Bold" TextColor="#667eea"/>
  </VerticalStackLayout>
- <Button Text="?" 
+ <Button Text="→" 
  BackgroundColor="#667eea"
  TextColor="White"
  CornerRadius="8"
  Padding="10,10"
  FontSize="18"
  HorizontalOptions="End"
-VerticalOptions="End"
+ VerticalOptions="End"
  Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:MainViewModel}}, Path=NavigateToNotesCommand}"
  CommandParameter="{Binding .}"/>
  </Grid>
@@ -218,7 +218,7 @@ VerticalOptions="End"
 
  <!-- Noten Page -->
  <VerticalStackLayout IsVisible="{Binding CurrentPage, Converter={StaticResource PageVisibilityConverter}, ConverterParameter=Notes}" Spacing="30">
-<Button Text="? Zur�ck zur �bersicht"
+<Button Text="← Zurück zur Übersicht"
  Command="{Binding NavigateToOverviewCommand}"
  BackgroundColor="Transparent"
  TextColor="#667eea"
@@ -294,7 +294,7 @@ VerticalOptions="End"
  VerticalOptions="Center"
  HorizontalTextAlignment="End"/>
  <Label Grid.Column="4"
- Text="{Binding Average, StringFormat='� {0:F2}'}" 
+ Text="{Binding Average, StringFormat='Ø {0:F2}'}" 
  FontSize="12" 
  TextColor="#667eea"
  FontAttributes="Bold"
@@ -330,7 +330,7 @@ VerticalOptions="End"
  <DataTemplate x:DataType="models:Note">
  <Frame BackgroundColor="#f8f9fa" 
  CornerRadius="10" 
-Padding="16" 
+ Padding="16" 
  HasShadow="False"
  BorderColor="#667eea">
  <Frame.GestureRecognizers>
@@ -350,7 +350,7 @@ Padding="16"
  Margin="24,0"
  VerticalOptions="Center"/>
  <Button Grid.Column="2" 
- Text="?"
+ Text="⋯"
  BackgroundColor="White"
  TextColor="#667eea"
  BorderColor="#ddd"
@@ -367,7 +367,7 @@ Padding="16"
  </BindableLayout.ItemTemplate>
  <BindableLayout.EmptyView>
  <VerticalStackLayout Padding="40" HorizontalOptions="Center">
- <Label Text="??" FontSize="32" HorizontalOptions="Center" Margin="0,0,0,10"/>
+ <Label Text="📝" FontSize="32" HorizontalOptions="Center" Margin="0,0,0,10"/>
  <Label Text="Noch keine Noten vorhanden" FontSize="14" TextColor="#999" HorizontalOptions="Center"/>
  </VerticalStackLayout>
  </BindableLayout.EmptyView>
@@ -381,10 +381,10 @@ Padding="16"
  <!-- Settings Page -->
  <VerticalStackLayout IsVisible="{Binding CurrentPage, Converter={StaticResource PageVisibilityConverter}, ConverterParameter=Settings}" Spacing="30">
  <Label Text="Einstellungen" FontSize="42" FontAttributes="Bold" TextColor="#1a1a1a"/>
-  
+ 
  <Frame BackgroundColor="White" CornerRadius="16" Padding="28" HasShadow="True" WidthRequest="800" HorizontalOptions="Start">
  <VerticalStackLayout Spacing="20">
- <Label Text="?? Profil" FontSize="18" FontAttributes="Bold" TextColor="#1a1a1a"/>
+ <Label Text="👤 Profil" FontSize="18" FontAttributes="Bold" TextColor="#1a1a1a"/>
  <VerticalStackLayout>
  <Label Text="Name" FontSize="14" FontAttributes="Bold" TextColor="#333"/>
  <Entry Placeholder="Max Mustermann" BackgroundColor="#f8f9fa" Margin="0,8,0,0"/>
@@ -394,7 +394,7 @@ Padding="16"
 
  <Frame BackgroundColor="White" CornerRadius="16" Padding="28" HasShadow="True" WidthRequest="800" HorizontalOptions="Start">
  <VerticalStackLayout Spacing="20">
- <Label Text="?? Erscheinungsbild" FontSize="18" FontAttributes="Bold" TextColor="#1a1a1a"/>
+ <Label Text="🎨 Erscheinungsbild" FontSize="18" FontAttributes="Bold" TextColor="#1a1a1a"/>
  <HorizontalStackLayout Spacing="12">
  <Label Text="Dark Mode" FontSize="14" FontAttributes="Bold" TextColor="#333" VerticalOptions="Center"/>
  <Switch IsToggled="{Binding IsDarkMode}" Toggled="OnDarkModeToggled"/>
@@ -420,7 +420,7 @@ Padding="16"
  VerticalOptions="Center"
  HasShadow="True">
  <VerticalStackLayout Spacing="20">
- <Label Text="Neues Fach hinzuf�gen" FontSize="24" FontAttributes="Bold" TextColor="#1a1a1a"/>
+ <Label Text="Neues Fach hinzufügen" FontSize="24" FontAttributes="Bold" TextColor="#1a1a1a"/>
  
  <VerticalStackLayout>
  <Label Text="Fachname" FontSize="14" FontAttributes="Bold" TextColor="#333"/>
@@ -440,7 +440,7 @@ Padding="16"
  CornerRadius="8"
  Padding="12,12"
  WidthRequest="120"/>
- <Button Text="Hinzuf�gen" 
+ <Button Text="Hinzufügen" 
  Command="{Binding AddSubjectCommand}"
  BackgroundColor="#667eea"
  TextColor="White"
@@ -466,7 +466,7 @@ Padding="16"
  VerticalOptions="Center"
  HasShadow="True">
  <VerticalStackLayout Spacing="20">
- <Label Text="Neue Note hinzuf�gen" FontSize="24" FontAttributes="Bold" TextColor="#1a1a1a"/>
+ <Label Text="Neue Note hinzufügen" FontSize="24" FontAttributes="Bold" TextColor="#1a1a1a"/>
  
  <VerticalStackLayout Spacing="8">
  <Label Text="Notensart" FontSize="14" FontAttributes="Bold" TextColor="#333"/>
@@ -504,7 +504,7 @@ Padding="16"
  Padding="12,12"
  WidthRequest="120"
  HeightRequest="45"/>
- <Button Text="Hinzuf�gen" 
+ <Button Text="Hinzufügen" 
  Command="{Binding AddNoteCommand}"
  BackgroundColor="#667eea"
  TextColor="White"
@@ -561,7 +561,7 @@ HasShadow="True">
  </VerticalStackLayout>
 
  <Grid Margin="0,30,0,0">
- <Button Text="L�schen" 
+ <Button Text="Löschen" 
  Command="{Binding DeleteNoteFromModalCommand}"
  BackgroundColor="#ff6b6b"
  TextColor="White"
