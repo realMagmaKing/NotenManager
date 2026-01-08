@@ -6,13 +6,19 @@
  xmlns:converters="clr-namespace:NotenManager.Converters"
  xmlns:lvc="clr-namespace:LiveChartsCore.SkiaSharpView.Maui;assembly=LiveChartsCore.SkiaSharpView.Maui"
  x:Class="NotenManager.MainPage"
- x:DataType="viewmodels:MainViewModel">
+ x:DataType="viewmodels:MainViewModel"
+ Shell.NavBarIsVisible="False"
+ Shell.TabBarIsVisible="False">
 
  <ContentPage.Resources>
+ <ResourceDictionary>
  <converters:SubjectColorConverter x:Key="ColorConverter"/>
  <converters:PageVisibilityConverter x:Key="PageVisibilityConverter"/>
  <converters:IsNullConverter x:Key="IsNullConverter"/>
  <converters:IsNotNullConverter x:Key="IsNotNullConverter"/>
+ <converters:StringToBoolConverter x:Key="StringToBoolConverter"/>
+ <converters:NoteGradeDisplayConverter x:Key="NoteGradeDisplayConverter"/>
+ </ResourceDictionary>
  </ContentPage.Resources>
 
  <Grid>
@@ -311,7 +317,7 @@
  TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray300}}"
  VerticalOptions="Center"/>
  <Label Grid.Column="3"
- Text="{Binding Note.Grade, StringFormat='{0:F1}'}" 
+ Text="{Binding Note, Converter={StaticResource NoteGradeDisplayConverter}}" 
  FontSize="12" 
  TextColor="{StaticResource Primary}"
  FontAttributes="Bold"
@@ -367,7 +373,7 @@
  <Label Text="{Binding Date, StringFormat='{0:dd. MMMM yyyy}'}" FontSize="12" TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray300}}"/>
  </VerticalStackLayout>
  <Label Grid.Column="1" 
- Text="{Binding Grade, StringFormat='{0:F1}'}" 
+ Text="{Binding ., Converter={StaticResource NoteGradeDisplayConverter}}"
  FontSize="28" 
  FontAttributes="Bold" 
  TextColor="{StaticResource Primary}" 
@@ -406,27 +412,128 @@
  <VerticalStackLayout IsVisible="{Binding CurrentPage, Converter={StaticResource PageVisibilityConverter}, ConverterParameter=Settings}" Spacing="30">
  <Label Text="Einstellungen" FontSize="42" FontAttributes="Bold" TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}"/>
  
+ <!-- Profil Section -->
  <Frame BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}" CornerRadius="16" Padding="28" HasShadow="True" WidthRequest="800" HorizontalOptions="Start">
  <VerticalStackLayout Spacing="20">
  <Label Text="👤 Profil" FontSize="18" FontAttributes="Bold" TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}"/>
+ 
  <VerticalStackLayout>
  <Label Text="Name" FontSize="14" FontAttributes="Bold" TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}"/>
- <Entry Placeholder="Max Mustermann" BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}" Margin="0,8,0,0"/>
+ <Entry Text="{Binding Settings.UserName, Mode=TwoWay}" Placeholder="Max Mustermann" BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}" Margin="0,8,0,0"/>
+ </VerticalStackLayout>
+
+ <VerticalStackLayout>
+ <Label Text="Klasse" FontSize="14" FontAttributes="Bold" TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}"/>
+ <Entry Text="{Binding Settings.ClassName, Mode=TwoWay}" Placeholder="z.B. 10a" BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}" Margin="0,8,0,0"/>
  </VerticalStackLayout>
  </VerticalStackLayout>
  </Frame>
 
+ <!-- Erscheinungsbild Section -->
  <Frame BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}" CornerRadius="16" Padding="28" HasShadow="True" WidthRequest="800" HorizontalOptions="Start">
  <VerticalStackLayout Spacing="20">
  <Label Text="🎨 Erscheinungsbild" FontSize="18" FontAttributes="Bold" TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}"/>
+ 
  <HorizontalStackLayout Spacing="12">
  <Label Text="Dark Mode" FontSize="14" FontAttributes="Bold" TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}" VerticalOptions="Center"/>
  <Switch IsToggled="{Binding IsDarkMode}" Toggled="OnDarkModeToggled"/>
  </HorizontalStackLayout>
+
+ <VerticalStackLayout Spacing="10">
+ <Label Text="Diagramm-Stil" FontSize="14" FontAttributes="Bold" TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}"/>
+ <Picker ItemsSource="{Binding AvailableChartStyles}" 
+ SelectedItem="{Binding Settings.ChartStyle, Mode=TwoWay}"
+ BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}"
+ TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}"
+ FontSize="14"/>
+ </VerticalStackLayout>
  </VerticalStackLayout>
  </Frame>
+
+ <!-- Notensystem Section -->
+ <Frame BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}" CornerRadius="16" Padding="28" HasShadow="True" WidthRequest="800" HorizontalOptions="Start">
+ <VerticalStackLayout Spacing="20">
+ <Label Text="📋 Notensystem" FontSize="18" FontAttributes="Bold" TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}"/>
+ 
+ <VerticalStackLayout Spacing="12">
+ <Label Text="System wählen:" FontSize="14" FontAttributes="Bold" TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}"/>
+ 
+ <Picker ItemsSource="{Binding AvailableGradingSystems}" 
+ SelectedItem="{Binding Settings.GradingSystem, Mode=TwoWay}"
+ BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}"
+ TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}"
+ FontSize="14"/>
  </VerticalStackLayout>
 
+ <VerticalStackLayout Spacing="10">
+ <Label Text="Zieldurchschnitt" FontSize="14" FontAttributes="Bold" TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}"/>
+ <Entry Text="{Binding Settings.TargetAverage, Mode=TwoWay}" 
+ Placeholder="3.0" 
+ Keyboard="Numeric"
+ BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}"
+ Margin="0,8,0,0"/>
+ </VerticalStackLayout>
+ </VerticalStackLayout>
+ </Frame>
+
+ <!-- Benachrichtigungen Section -->
+ <Frame BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}" CornerRadius="16" Padding="28" HasShadow="True" WidthRequest="800" HorizontalOptions="Start">
+ <VerticalStackLayout Spacing="20">
+ <Label Text="🔔 Benachrichtigungen" FontSize="18" FontAttributes="Bold" TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}"/>
+ 
+ <HorizontalStackLayout Spacing="12">
+ <Label Text="Benachrichtigungen aktivieren" FontSize="14" FontAttributes="Bold" TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}" VerticalOptions="Center"/>
+ <Switch IsToggled="{Binding Settings.ShowNotifications, Mode=TwoWay}"/>
+ </HorizontalStackLayout>
+
+ <VerticalStackLayout Spacing="10">
+ <HorizontalStackLayout Spacing="12">
+ <Label Text="Erinnerungszeit:" FontSize="14" FontAttributes="Bold" TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}" VerticalOptions="Center"/>
+ <Label Text="{Binding NotificationTimeDisplay}" 
+ FontSize="14" 
+ TextColor="{StaticResource Primary}"
+ FontAttributes="Bold"
+ VerticalOptions="Center"/>
+ </HorizontalStackLayout>
+ <Slider x:Name="NotificationSlider"
+ Minimum="0" 
+ Maximum="23" 
+ Value="{Binding Settings.NotificationTime, Mode=TwoWay}"
+ ValueChanged="OnNotificationTimeChanged"
+ MinimumTrackColor="{StaticResource Primary}"
+ MaximumTrackColor="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray600}}"
+ ThumbColor="{StaticResource Primary}"
+ Margin="0,8,0,0"/>
+ <HorizontalStackLayout Spacing="580" HorizontalOptions="Center">
+ <Label Text="00:00" FontSize="12" TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray300}}"/>
+ <Label Text="23:00" FontSize="12" TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray300}}"/>
+ </HorizontalStackLayout>
+ <Label Text="ℹ️ Benachrichtigungen sind derzeit nur eine UI-Vorschau. Die Funktion wird später implementiert." 
+ FontSize="11" 
+ TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray300}}"
+ Margin="0,8,0,0"
+ HorizontalTextAlignment="Center"/>
+ </VerticalStackLayout>
+
+ <HorizontalStackLayout Spacing="12">
+ <Label Text="Wöchentliche Zusammenfassung" FontSize="14" FontAttributes="Bold" TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}" VerticalOptions="Center"/>
+ <Switch IsToggled="{Binding Settings.ShowWeeklySummary, Mode=TwoWay}"/>
+ </HorizontalStackLayout>
+ </VerticalStackLayout>
+ </Frame>
+
+ <!-- Speichern Button -->
+ <Button Text="Einstellungen speichern" 
+ Command="{Binding SaveSettingsCommand}"
+ BackgroundColor="#667eea"
+ TextColor="White"
+ CornerRadius="10"
+ Padding="16,14"
+ FontAttributes="Bold"
+ HorizontalOptions="Start"
+ WidthRequest="250"/>
+
+ </VerticalStackLayout>
  </VerticalStackLayout>
 </ScrollView>
 
@@ -448,7 +555,8 @@
  
  <VerticalStackLayout>
  <Label Text="Fachname" FontSize="14" FontAttributes="Bold" TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}"/>
- <Entry Text="{Binding NewSubjectName}" Placeholder="z.B. Englisch" Margin="0,8,0,0"/>
+ <Entry Text="{Binding NewSubjectName, Mode=TwoWay}" Placeholder="z.B. Englisch" Margin="0,8,0,0" TextChanged="OnNewSubjectName_TextChanged"/>
+ <Label Text="{Binding NewSubjectNameError}" FontSize="12" TextColor="#ff6b6b" IsVisible="{Binding NewSubjectNameError, Converter={StaticResource IsNotNullConverter}}" />
  </VerticalStackLayout>
 
  <VerticalStackLayout>
@@ -495,21 +603,61 @@
  
  <VerticalStackLayout Spacing="8">
  <Label Text="Notensart" FontSize="14" FontAttributes="Bold" TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}"/>
- <Entry Text="{Binding NewNoteType}" 
+ <Entry Text="{Binding NewNoteType, Mode=TwoWay}" 
  Placeholder="z.B. Test, Hausaufgabe" 
  Margin="0,8,0,0"
  BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}"
- HeightRequest="45"/>
+ HeightRequest="45"
+ TextChanged="OnNewNoteType_TextChanged"/>
+ <Label Text="{Binding NewNoteTypeError}" FontSize="12" TextColor="#ff6b6b" IsVisible="{Binding NewNoteTypeError, Converter={StaticResource IsNotNullConverter}}" />
  </VerticalStackLayout>
 
  <VerticalStackLayout Spacing="8">
- <Label Text="Note (1-6)" FontSize="14" FontAttributes="Bold" TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}"/>
- <Entry Text="{Binding NewNoteGrade, Mode=TwoWay}" 
+ <Label Text="{Binding GradeRangeLabel}" FontSize="14" FontAttributes="Bold" TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}"/>
+ 
+ <!-- USA System: Picker with Letter Grades -->
+ <Picker x:Name="UsaGradePicker"
+ IsVisible="False"
+ SelectedIndex="0"
+ SelectedIndexChanged="OnUsaGradePickerSelectedIndexChanged"
+ BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}"
+ HeightRequest="45"
+ Margin="0,8,0,0">
+ <Picker.Items>
+ <x:String>A (4.0 - Sehr gut)</x:String>
+ <x:String>A- (3.7)</x:String>
+ <x:String>B+ (3.3)</x:String>
+ <x:String>B (3.0 - Gut)</x:String>
+ <x:String>B- (2.7)</x:String>
+ <x:String>C+ (2.3)</x:String>
+ <x:String>C (2.0 - Befriedigend)</x:String>
+ <x:String>C- (1.7)</x:String>
+ <x:String>D+ (1.3)</x:String>
+ <x:String>D (1.0 - Ausreichend)</x:String>
+ <x:String>D- (0.7)</x:String>
+ <x:String>F (0.0 - Nicht bestanden)</x:String>
+ </Picker.Items>
+ </Picker>
+ 
+ <!-- Standard Entry for numeric input -->
+ <Entry x:Name="StandardGradeEntry"
+ Text="{Binding NewNoteGrade, Mode=TwoWay}" 
  Keyboard="Numeric" 
- Placeholder="2.5" 
+ Placeholder="z.B. 5.5" 
  Margin="0,8,0,0"
  BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}"
- HeightRequest="45"/>
+ HeightRequest="45"
+ TextChanged="OnNewNoteGrade_TextChanged"
+ MaxLength="6"/>
+ 
+ <Label Text="{Binding NewNoteGradeError}" FontSize="12" TextColor="#ff6b6b" IsVisible="{Binding NewNoteGradeError, Converter={StaticResource IsNotNullConverter}}" />
+ 
+ <!-- Hint Label for current system -->
+ <Label x:Name="GradeHintLabel" 
+ FontSize="11" 
+ TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray300}}"
+ Margin="0,4,0,0"
+ HorizontalTextAlignment="Start"/>
  </VerticalStackLayout>
 
  <VerticalStackLayout Spacing="8">
@@ -517,7 +665,9 @@
  <DatePicker Date="{Binding NewNoteDate, Mode=TwoWay}" 
  Margin="0,8,0,0"
  BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}"
- HeightRequest="45"/>
+ HeightRequest="45"
+ DateSelected="OnNewNoteDate_DateSelected"/>
+ <Label Text="{Binding NewNoteDateError}" FontSize="12" TextColor="#ff6b6b" IsVisible="{Binding NewNoteDateError, Converter={StaticResource IsNotNullConverter}}" />
  </VerticalStackLayout>
 
  <HorizontalStackLayout Spacing="12" HorizontalOptions="End" Margin="0,30,0,0">
@@ -565,17 +715,57 @@
  Placeholder="z.B. Test, Hausaufgabe" 
  Margin="0,8,0,0"
  BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}"
- HeightRequest="45"/>
+ HeightRequest="45"
+ TextChanged="OnNewNoteType_TextChanged"/>
+ <Label Text="{Binding NewNoteTypeError}" FontSize="12" TextColor="#ff6b6b" IsVisible="{Binding NewNoteTypeError, Converter={StaticResource IsNotNullConverter}}" />
  </VerticalStackLayout>
 
  <VerticalStackLayout Spacing="8">
- <Label Text="Note (1-6)" FontSize="14" FontAttributes="Bold" TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}"/>
- <Entry Text="{Binding NewNoteGrade, Mode=TwoWay}" 
+ <Label Text="{Binding GradeRangeLabel}" FontSize="14" FontAttributes="Bold" TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}"/>
+ 
+ <!-- USA System: Picker with Letter Grades -->
+ <Picker x:Name="UsaGradePickerEdit"
+ IsVisible="False"
+ SelectedIndex="0"
+ SelectedIndexChanged="OnUsaGradePickerSelectedIndexChanged"
+ BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}"
+ HeightRequest="45"
+ Margin="0,8,0,0">
+ <Picker.Items>
+ <x:String>A (4.0 - Sehr gut)</x:String>
+ <x:String>A- (3.7)</x:String>
+ <x:String>B+ (3.3)</x:String>
+ <x:String>B (3.0 - Gut)</x:String>
+ <x:String>B- (2.7)</x:String>
+ <x:String>C+ (2.3)</x:String>
+ <x:String>C (2.0 - Befriedigend)</x:String>
+ <x:String>C- (1.7)</x:String>
+ <x:String>D+ (1.3)</x:String>
+ <x:String>D (1.0 - Ausreichend)</x:String>
+ <x:String>D- (0.7)</x:String>
+ <x:String>F (0.0 - Nicht bestanden)</x:String>
+ </Picker.Items>
+ </Picker>
+ 
+ <!-- Standard Entry for numeric input -->
+ <Entry x:Name="StandardGradeEntryEdit"
+ Text="{Binding NewNoteGrade, Mode=TwoWay}" 
  Keyboard="Numeric" 
- Placeholder="2.5" 
+ Placeholder="z.B. 5.5" 
  Margin="0,8,0,0"
  BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}"
- HeightRequest="45"/>
+ HeightRequest="45"
+ TextChanged="OnNewNoteGrade_TextChanged"
+ MaxLength="6"/>
+ 
+ <Label Text="{Binding NewNoteGradeError}" FontSize="12" TextColor="#ff6b6b" IsVisible="{Binding NewNoteGradeError, Converter={StaticResource IsNotNullConverter}}" />
+ 
+ <!-- Hint Label for current system -->
+ <Label x:Name="GradeHintLabelEdit" 
+ FontSize="11" 
+ TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray300}}"
+ Margin="0,4,0,0"
+ HorizontalTextAlignment="Start"/>
  </VerticalStackLayout>
 
  <VerticalStackLayout Spacing="8">
@@ -583,7 +773,9 @@
  <DatePicker Date="{Binding NewNoteDate, Mode=TwoWay}" 
  Margin="0,8,0,0"
  BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}"
- HeightRequest="45"/>
+ HeightRequest="45"
+ DateSelected="OnNewNoteDate_DateSelected"/>
+ <Label Text="{Binding NewNoteDateError}" FontSize="12" TextColor="#ff6b6b" IsVisible="{Binding NewNoteDateError, Converter={StaticResource IsNotNullConverter}}" />
  </VerticalStackLayout>
 
  <Grid Margin="0,30,0,0">
