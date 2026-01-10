@@ -104,6 +104,9 @@ namespace NotenManager.ViewModels
         private string settingsUserNameError;
 
         [ObservableProperty]
+        private string settingsClassNameError;
+
+        [ObservableProperty]
         private string[] availableGradingSystems = new[] {
  "Schweiz (6-1, 6 = Beste)",
  "Deutschland (1-6, 1 = Beste)",
@@ -1144,7 +1147,7 @@ _originalGradingSystem = newSystem;
             }
         }
 
-        private void ValidateSettingsUserName()
+        public void ValidateSettingsUserName()
         {
             if (string.IsNullOrWhiteSpace(Settings.UserName))
             {
@@ -1166,5 +1169,40 @@ _originalGradingSystem = newSystem;
 
             SettingsUserNameError = null;
         }
+
+        public void ValidateSettingsClassName()
+        {
+            if (string.IsNullOrWhiteSpace(Settings.ClassName))
+{
+    SettingsClassNameError = null; // Optional field
+ return;
+    }
+
+  if (Settings.ClassName.Trim().Length > 20)
+     {
+      SettingsClassNameError = "Klassenname ist zu lang (max. 20 Zeichen)";
+     return;
+      }
+
+   if (!AllowedNameRegex.IsMatch(Settings.ClassName.Trim()))
+    {
+  SettingsClassNameError = "Klassenname darf keine Sonderzeichen enthalten";
+    return;
+     }
+
+ SettingsClassNameError = null;
+        }
+
+        [RelayCommand]
+  private void NavigateToInfo()
+    {
+    CurrentPage = "Info";
+  }
+
+     [RelayCommand]
+  private void NavigateToFaq()
+ {
+ CurrentPage = "Faq";
+  }
     }
 }

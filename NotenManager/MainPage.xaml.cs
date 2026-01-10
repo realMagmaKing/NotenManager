@@ -1,22 +1,70 @@
 ﻿using NotenManager.ViewModels;
 using Microsoft.Maui.ApplicationModel;
+using System.Timers;
 
 namespace NotenManager;
 
-public partial class MainPage : ContentPage
+public partial class MainPage : ContentPage, IDisposable
 {
     private MainViewModel _viewModel;
+    private bool _isUpdatingGradeText = false;
+    private System.Timers.Timer _gradeInputTimer;
+    private string _pendingGradeText = "";
+    private bool _disposed = false;
 
     public MainPage()
     {
-        InitializeComponent();
-        _viewModel = new MainViewModel();
-        BindingContext = _viewModel;
+        try
+        {
+            InitializeComponent();
+            _viewModel = new MainViewModel();
+            BindingContext = _viewModel;
 
-        Application.Current.UserAppTheme = _viewModel.IsDarkMode ? AppTheme.Dark : AppTheme.Light;
-        
-        // Subscribe to property changes to update UI mode
-        _viewModel.PropertyChanged += ViewModel_PropertyChanged;
+            Application.Current.UserAppTheme = _viewModel.IsDarkMode ? AppTheme.Dark : AppTheme.Light;
+            
+            // Initialize debounce timer
+            _gradeInputTimer = new System.Timers.Timer(300); // 300ms delay
+            _gradeInputTimer.Elapsed += OnGradeInputTimerElapsed;
+            _gradeInputTimer.AutoReset = false;
+   
+            // Subscribe to property changes to update UI mode
+            _viewModel.PropertyChanged += ViewModel_PropertyChanged;
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"MainPage constructor error: {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"Stack trace: {ex.StackTrace}");
+            
+            // Re-throw to show error to user
+            throw;
+        }
+    }
+
+    public void Dispose()
+    {
+        if (_disposed)
+            return;
+
+        try
+        {
+            if (_gradeInputTimer != null)
+            {
+                _gradeInputTimer.Stop();
+                _gradeInputTimer.Elapsed -= OnGradeInputTimerElapsed;
+                _gradeInputTimer.Dispose();
+            }
+
+            if (_viewModel != null)
+            {
+                _viewModel.PropertyChanged -= ViewModel_PropertyChanged;
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Dispose error: {ex.Message}");
+        }
+
+        _disposed = true;
     }
 
     private void ViewModel_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -120,100 +168,199 @@ public partial class MainPage : ContentPage
         _viewModel.ValidateNewNoteType();
     }
 
+    private void OnSettingsUserName_TextChanged(object sender, TextChangedEventArgs e)
+    {
+        _viewModel.ValidateSettingsUserName();
+    }
+
+    private void OnSettingsClassName_TextChanged(object sender, TextChangedEventArgs e)
+    {
+        _viewModel.ValidateSettingsClassName();
+    }
+
     private void OnNewNoteGrade_TextChanged(object sender, TextChangedEventArgs e)
     {
+        // Prevent recursive calls
+        if (_isUpdatingGradeText)
+          return;
+
         var entry = sender as Entry;
-        if (entry == null) return;
+     if (entry == null) return;
 
-        var newText = e.NewTextValue ?? "";
-        
-        // Allow empty input
-        if (string.IsNullOrEmpty(newText))
-        {
-            _viewModel.NewNoteGrade = 0;
-            _viewModel.ValidateNewNoteGrade();
-            return;
+        // Store pending text and restart timer
+_pendingGradeText = e.NewTextValue ?? "";
+  
+  // Stop any existing timer
+        if (_gradeInputTimer != null)
+   {
+      _gradeInputTimer.Stop();
+  _gradeInputTimer.Start();
         }
+      
+        // Also do immediate cleaning for better UX
+ try
+ {
+   ProcessGradeInput(entry, _pendingGradeText, false);
+        }
+      catch (Exception ex)
+   {
+      System.Diagnostics.Debug.WriteLine($"OnNewNoteGrade_TextChanged error: {ex.Message}");
+    }
+    }
 
-        // Remove all non-numeric characters except ONE decimal separator
-        // Allow only: digits (0-9), dot (.), and comma (,)
-        var cleanedText = "";
-        bool hasDecimalPoint = false;
-        
-        foreach (char c in newText)
+    private void OnGradeInputTimerElapsed(object sender, ElapsedEventArgs e)
+    {
+        // Timer elapsed - process the final value
+        MainThread.BeginInvokeOnMainThread(() =>
         {
-            if (char.IsDigit(c))
+            try
             {
-                cleanedText += c;
-            }
-            else if ((c == '.' || c == ',') && !hasDecimalPoint)
-            {
-                cleanedText += '.';
-                hasDecimalPoint = true;
-            }
-            // Skip any other character (including spaces, letters, additional dots)
-        }
-
-        // Prevent leading zeros (except "0." for decimals)
-        if (cleanedText.Length > 1 && cleanedText[0] == '0' && cleanedText[1] != '.')
-        {
-            cleanedText = cleanedText.TrimStart('0');
-            if (string.IsNullOrEmpty(cleanedText))
-                cleanedText = "0";
-        }
-
-        // Update Entry text if it was cleaned
-        if (cleanedText != newText)
-        {
-            // Prevent infinite loop by checking if text actually changed
-            if (entry.Text != cleanedText)
-            {
-                entry.Text = cleanedText;
-            }
-            return; // TextChanged will fire again with cleaned text
-        }
-
-        // Handle empty or invalid input
-        if (string.IsNullOrEmpty(cleanedText) || cleanedText == ".")
-        {
-            _viewModel.NewNoteGrade = 0;
-            _viewModel.ValidateNewNoteGrade();
-            return;
-        }
-
-        // Try to parse the cleaned text
-        if (double.TryParse(cleanedText, System.Globalization.NumberStyles.Float, 
-            System.Globalization.CultureInfo.InvariantCulture, out double grade))
-        {
-            // Apply system-specific constraints
-            if (_viewModel.Settings?.GradingSystem?.StartsWith("Prozent") == true)
-            {
-                // Percentage: 0-100
-                if (grade > 100)
+                // Safely get the active entry
+                Entry entry = null;
+      
+                if (StandardGradeEntry != null && StandardGradeEntry.IsVisible)
                 {
-                    entry.Text = "100";
-                    return;
+                    entry = StandardGradeEntry;
+                }
+                else if (StandardGradeEntryEdit != null && StandardGradeEntryEdit.IsVisible)
+                {
+                    entry = StandardGradeEntryEdit;
+                }
+               
+                // Only process if we have a valid entry
+                if (entry != null)
+                {
+                    ProcessGradeInput(entry, _pendingGradeText, true);
                 }
             }
-            else if (_viewModel.Settings != null)
+            catch (Exception ex)
             {
-                // Other systems: respect Min/Max (1-6 for Swiss/German)
-                var max = Math.Max(_viewModel.Settings.MinGrade, _viewModel.Settings.MaxGrade);
-                if (grade > max)
+                System.Diagnostics.Debug.WriteLine($"OnGradeInputTimerElapsed error: {ex.Message}");
+            }
+        });
+    }
+
+    private void ProcessGradeInput(Entry entry, string inputText, bool isFinal)
+    {
+        if (_isUpdatingGradeText)
+            return;
+
+        try
+        {
+            _isUpdatingGradeText = true;
+
+            if (string.IsNullOrEmpty(inputText))
+            {
+                _viewModel.NewNoteGrade = 0;
+                _viewModel.ValidateNewNoteGrade();
+                return;
+            }
+
+            // Clean the input
+            var cleanedText = "";
+            bool hasDecimalPoint = false;
+            
+            foreach (char c in inputText)
+            {
+                if (char.IsDigit(c))
                 {
-                    entry.Text = max.ToString("F1", System.Globalization.CultureInfo.InvariantCulture);
-                    return;
+                    cleanedText += c;
+                }
+                else if ((c == '.' || c == ',') && !hasDecimalPoint)
+                {
+                    cleanedText += '.';
+                    hasDecimalPoint = true;
                 }
             }
 
-            // Valid grade - update ViewModel
+            // Remove leading zeros
+            if (cleanedText.Length > 1 && cleanedText[0] == '0' && cleanedText[1] != '.')
+            {
+                cleanedText = cleanedText.TrimStart('0');
+                if (string.IsNullOrEmpty(cleanedText))
+                    cleanedText = "0";
+            }
+
+            if (string.IsNullOrEmpty(cleanedText) || cleanedText == ".")
+            {
+                if (isFinal)
+                {
+                    _viewModel.NewNoteGrade = 0;
+                    _viewModel.ValidateNewNoteGrade();
+                }
+                return;
+            }
+
+            // Parse the value
+            if (!double.TryParse(cleanedText, System.Globalization.NumberStyles.Float, 
+                System.Globalization.CultureInfo.InvariantCulture, out double grade))
+            {
+                return;
+            }
+
+            // Get max allowed value
+            double maxAllowed = 100;
+            if (_viewModel.Settings != null)
+            {
+                if (_viewModel.Settings.GradingSystem?.StartsWith("Prozent") == true)
+                {
+                    maxAllowed = 100;
+                }
+                else
+                {
+                    maxAllowed = Math.Max(_viewModel.Settings.MinGrade, _viewModel.Settings.MaxGrade);
+                }
+            }
+
+            // Cap the value
+            bool wasCapped = false;
+            if (grade > maxAllowed)
+            {
+                grade = maxAllowed;
+                wasCapped = true;
+            }
+
+            // Update ViewModel
             _viewModel.NewNoteGrade = grade;
             _viewModel.ValidateNewNoteGrade();
+
+            // Update Entry text only if needed and only on final or if capped
+            if (isFinal || wasCapped)
+          {
+ string formattedText;
+    
+                // Format based on grading system
+ if (_viewModel.Settings?.GradingSystem?.StartsWith("Prozent") == true)
+ {
+        // Percentage: no decimal places (e.g., "85")
+         formattedText = grade.ToString("F0", System.Globalization.CultureInfo.InvariantCulture);
+     }
+           else
+    {
+             // Swiss/German/USA: show decimal only if needed
+    // If grade is whole number (e.g., 5.0), show as "5"
+      // If grade has decimal (e.g., 5.5), show as "5.5"
+       if (grade == Math.Floor(grade))
+      {
+        // Whole number - no decimal
+     formattedText = grade.ToString("F0", System.Globalization.CultureInfo.InvariantCulture);
         }
-        else
+          else
+         {
+  // Has decimal - show one decimal place
+            formattedText = grade.ToString("F1", System.Globalization.CultureInfo.InvariantCulture);
+   }
+  }
+      
+    if (entry.Text != formattedText)
         {
-            // Should never happen after cleaning, but just in case
-            _viewModel.NewNoteGradeError = "Ungültige Eingabe";
+           entry.Text = formattedText;
+  }
+         }
+        }
+        finally
+        {
+            _isUpdatingGradeText = false;
         }
     }
 
@@ -239,24 +386,55 @@ public partial class MainPage : ContentPage
         var picker = sender as Picker;
         if (picker == null || picker.SelectedIndex < 0) return;
 
-        var gradeValue = picker.SelectedIndex switch
+      var gradeValue = picker.SelectedIndex switch
         {
-            0 => 4.0, // A
-            1 => 3.7, // A-
-            2 => 3.3, // B+
-            3 => 3.0, // B
+   0 => 4.0, // A
+     1 => 3.7, // A-
+     2 => 3.3, // B+
+          3 => 3.0, // B
             4 => 2.7, // B-
-            5 => 2.3, // C+
+       5 => 2.3, // C+
             6 => 2.0, // C
             7 => 1.7, // C-
-            8 => 1.3, // D+
-            9 => 1.0, // D
-            10 => 0.7, // D-
-            11 => 0.0, // F
-            _ => 2.0
+  8 => 1.3, // D+
+      9 => 1.0, // D
+10 => 0.7, // D-
+        11 => 0.0, // F
+      _ => 2.0
         };
 
-        _viewModel.NewNoteGrade = gradeValue;
-        _viewModel.ValidateNewNoteGrade();
+    _viewModel.NewNoteGrade = gradeValue;
+   _viewModel.ValidateNewNoteGrade();
+    }
+
+    // FAQ Collapse/Expand handlers
+    private void OnFaq1Tapped(object sender, EventArgs e)
+    {
+        Faq1Answer.IsVisible = !Faq1Answer.IsVisible;
+Faq1Arrow.Text = Faq1Answer.IsVisible ? "▲" : "▼";
+    }
+
+    private void OnFaq2Tapped(object sender, EventArgs e)
+    {
+    Faq2Answer.IsVisible = !Faq2Answer.IsVisible;
+     Faq2Arrow.Text = Faq2Answer.IsVisible ? "▲" : "▼";
+    }
+
+    private void OnFaq3Tapped(object sender, EventArgs e)
+    {
+        Faq3Answer.IsVisible = !Faq3Answer.IsVisible;
+        Faq3Arrow.Text = Faq3Answer.IsVisible ? "▲" : "▼";
+    }
+
+    private void OnFaq4Tapped(object sender, EventArgs e)
+    {
+        Faq4Answer.IsVisible = !Faq4Answer.IsVisible;
+  Faq4Arrow.Text = Faq4Answer.IsVisible ? "▲" : "▼";
+    }
+
+    private void OnFaq5Tapped(object sender, EventArgs e)
+    {
+        Faq5Answer.IsVisible = !Faq5Answer.IsVisible;
+        Faq5Arrow.Text = Faq5Answer.IsVisible ? "▲" : "▼";
     }
 }

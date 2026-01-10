@@ -90,7 +90,8 @@
  <Frame x:Name="SettingsFrame" BackgroundColor="Transparent" 
  Padding="20,16"
  CornerRadius="10"
- HasShadow="False">
+ HasShadow="False"
+   Margin="0,0,0,10">
  <Frame.Triggers>
  <DataTrigger TargetType="Frame"
  Binding="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:MainViewModel}}, Path=CurrentPage, Converter={StaticResource PageVisibilityConverter}, ConverterParameter=Settings}"
@@ -107,6 +108,51 @@
  <Label Text="Einstellungen" FontSize="15" TextColor="White" FontAttributes="Bold" VerticalOptions="Center"/>
  </HorizontalStackLayout>
  </Frame>
+
+ <Frame x:Name="InfoFrame" BackgroundColor="Transparent" 
+   Padding="20,16"
+  CornerRadius="10"
+  HasShadow="False"
+      Margin="0,0,0,10">
+<Frame.Triggers>
+ <DataTrigger TargetType="Frame"
+ Binding="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:MainViewModel}}, Path=CurrentPage, Converter={StaticResource PageVisibilityConverter}, ConverterParameter=Info}"
+ Value="True">
+ <Setter Property="BackgroundColor" Value="#33ffffff" />
+ <Setter Property="HasShadow" Value="True" />
+ </DataTrigger>
+ </Frame.Triggers>
+ <Frame.GestureRecognizers>
+ <TapGestureRecognizer Command="{Binding NavigateToInfoCommand}"/>
+  </Frame.GestureRecognizers>
+  <HorizontalStackLayout Spacing="12">
+       <Label Text="ℹ️" FontSize="20" VerticalOptions="Center"/>
+  <Label Text="Info" FontSize="15" TextColor="White" FontAttributes="Bold" VerticalOptions="Center"/>
+     </HorizontalStackLayout>
+   </Frame>
+
+     <Frame x:Name="FaqFrame" BackgroundColor="Transparent" 
+  Padding="20,16"
+    CornerRadius="10"
+  HasShadow="False"
+ Margin="0,0,0,10">
+     <Frame.Triggers>
+ <DataTrigger TargetType="Frame"
+ Binding="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:MainViewModel}}, Path=CurrentPage, Converter={StaticResource PageVisibilityConverter}, ConverterParameter=Faq}"
+ Value="True">
+ <Setter Property="BackgroundColor" Value="#33ffffff" />
+ <Setter Property="HasShadow" Value="True" />
+ </DataTrigger>
+ </Frame.Triggers>
+ <Frame.GestureRecognizers>
+<TapGestureRecognizer Command="{Binding NavigateToFaqCommand}"/>
+   </Frame.GestureRecognizers>
+<HorizontalStackLayout Spacing="12">
+     <Label Text="❓" FontSize="20" VerticalOptions="Center"/>
+<Label Text="Hilfe" FontSize="15" TextColor="White" FontAttributes="Bold" VerticalOptions="Center"/>
+  </HorizontalStackLayout>
+       </Frame>
+
  </VerticalStackLayout>
  </Grid>
 
@@ -419,12 +465,34 @@
  
  <VerticalStackLayout>
  <Label Text="Name" FontSize="14" FontAttributes="Bold" TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}"/>
- <Entry Text="{Binding Settings.UserName, Mode=TwoWay}" Placeholder="Max Mustermann" BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}" Margin="0,8,0,0"/>
+ <Entry x:Name="SettingsUserNameEntry"
+ Text="{Binding Settings.UserName, Mode=TwoWay}" 
+ Placeholder="Max Mustermann" 
+ BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}" 
+ Margin="0,8,0,0"
+ TextChanged="OnSettingsUserName_TextChanged"
+ MaxLength="50"/>
+ <Label Text="{Binding SettingsUserNameError}" 
+ FontSize="12" 
+ TextColor="#ff6b6b" 
+ IsVisible="{Binding SettingsUserNameError, Converter={StaticResource IsNotNullConverter}}" 
+ Margin="0,4,0,0"/>
  </VerticalStackLayout>
 
  <VerticalStackLayout>
  <Label Text="Klasse" FontSize="14" FontAttributes="Bold" TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}"/>
- <Entry Text="{Binding Settings.ClassName, Mode=TwoWay}" Placeholder="z.B. 10a" BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}" Margin="0,8,0,0"/>
+ <Entry x:Name="SettingsClassNameEntry"
+ Text="{Binding Settings.ClassName, Mode=TwoWay}" 
+ Placeholder="z.B. 10a" 
+ BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}" 
+ Margin="0,8,0,0"
+ TextChanged="OnSettingsClassName_TextChanged"
+ MaxLength="20"/>
+ <Label Text="{Binding SettingsClassNameError}" 
+ FontSize="12" 
+ TextColor="#ff6b6b" 
+ IsVisible="{Binding SettingsClassNameError, Converter={StaticResource IsNotNullConverter}}" 
+ Margin="0,4,0,0"/>
  </VerticalStackLayout>
  </VerticalStackLayout>
  </Frame>
@@ -534,6 +602,132 @@
  WidthRequest="250"/>
 
  </VerticalStackLayout>
+
+ <!-- Info Page -->
+ <VerticalStackLayout IsVisible="{Binding CurrentPage, Converter={StaticResource PageVisibilityConverter}, ConverterParameter=Info}" Spacing="30">
+ <Label Text="Info" FontSize="42" FontAttributes="Bold" TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}"/>
+ 
+ <Frame CornerRadius="16" Padding="30" HasShadow="True">
+ <Frame.Background>
+ <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+ <GradientStop Color="#667eea" Offset="0.0" />
+ <GradientStop Color="#764ba2" Offset="1.0" />
+ </LinearGradientBrush>
+ </Frame.Background>
+ <VerticalStackLayout Spacing="15">
+ <Label Text="NotenManager" FontSize="32" FontAttributes="Bold" TextColor="White"/>
+ <Label Text="Version 1.0.0" FontSize="16" TextColor="White" Opacity="0.9"/>
+ <Label Text="von realMagmaKing" FontSize="14" TextColor="White" Opacity="0.8" Margin="0,10,0,0"/>
+ </VerticalStackLayout>
+ </Frame>
+
+ <Frame CornerRadius="16" Padding="28" HasShadow="True" WidthRequest="800" HorizontalOptions="Start" BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}">
+ <VerticalStackLayout Spacing="15">
+ <Label Text="Features" FontSize="24" FontAttributes="Bold" TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}"/>
+ <Label Text="• Notenverwaltung nach Faechern" FontSize="15" TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}"/>
+ <Label Text="• Mehrere Notensysteme" FontSize="15" TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}"/>
+ <Label Text="• Statistiken und Diagramme" FontSize="15" TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}"/>
+ <Label Text="• Dark Mode" FontSize="15" TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}"/>
+ </VerticalStackLayout>
+ </Frame>
+ </VerticalStackLayout>
+
+ <!-- FAQ Page -->
+ <VerticalStackLayout IsVisible="{Binding CurrentPage, Converter={StaticResource PageVisibilityConverter}, ConverterParameter=Faq}" Spacing="30">
+ <Label Text="Hilfe" FontSize="42" FontAttributes="Bold" TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}"/>
+ 
+ <ScrollView HeightRequest="600">
+ <VerticalStackLayout Spacing="16">
+ 
+ <!-- FAQ 1 -->
+ <Frame CornerRadius="12" Padding="0" HasShadow="True" BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}">
+ <VerticalStackLayout Spacing="0">
+ <Grid Padding="20">
+ <Grid.GestureRecognizers>
+ <TapGestureRecognizer Tapped="OnFaq1Tapped"/>
+ </Grid.GestureRecognizers>
+ <Label Text="Wie erstelle ich ein Fach?" FontSize="18" FontAttributes="Bold" TextColor="#667eea" VerticalOptions="Center"/>
+ <Label x:Name="Faq1Arrow" Text="▼" FontSize="20" TextColor="#667eea" HorizontalOptions="End" VerticalOptions="Center"/>
+ </Grid>
+ <VerticalStackLayout x:Name="Faq1Answer" IsVisible="False" Padding="20,0,20,20" Spacing="10">
+ <BoxView HeightRequest="1" Color="{StaticResource Gray200}" Margin="0,0,0,10"/>
+ <Label Text="Gehe zur Faecher Seite und klicke auf + Fach hinzufuegen. Gib einen Namen ein und die Lektionen pro Woche." FontSize="14" TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}" LineHeight="1.5"/>
+ </VerticalStackLayout>
+ </VerticalStackLayout>
+ </Frame>
+
+ <!-- FAQ 2 -->
+ <Frame CornerRadius="12" Padding="0" HasShadow="True" BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}">
+ <VerticalStackLayout Spacing="0">
+ <Grid Padding="20">
+ <Grid.GestureRecognizers>
+ <TapGestureRecognizer Tapped="OnFaq2Tapped"/>
+ </Grid.GestureRecognizers>
+ <Label Text="Wie fuege ich eine Note hinzu?" FontSize="18" FontAttributes="Bold" TextColor="#667eea" VerticalOptions="Center"/>
+ <Label x:Name="Faq2Arrow" Text="▼" FontSize="20" TextColor="#667eea" HorizontalOptions="End" VerticalOptions="Center"/>
+ </Grid>
+ <VerticalStackLayout x:Name="Faq2Answer" IsVisible="False" Padding="20,0,20,20" Spacing="10">
+ <BoxView HeightRequest="1" Color="{StaticResource Gray200}" Margin="0,0,0,10"/>
+ <Label Text="Klicke auf ein Fach und dann auf + Neue Note. Gib Typ, Note und Datum ein." FontSize="14" TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}" LineHeight="1.5"/>
+ </VerticalStackLayout>
+ </VerticalStackLayout>
+ </Frame>
+
+ <!-- FAQ 3 -->
+ <Frame CornerRadius="12" Padding="0" HasShadow="True" BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}">
+ <VerticalStackLayout Spacing="0">
+ <Grid Padding="20">
+ <Grid.GestureRecognizers>
+ <TapGestureRecognizer Tapped="OnFaq3Tapped"/>
+ </Grid.GestureRecognizers>
+ <Label Text="Welche Notensysteme gibt es?" FontSize="18" FontAttributes="Bold" TextColor="#667eea" VerticalOptions="Center"/>
+ <Label x:Name="Faq3Arrow" Text="▼" FontSize="20" TextColor="#667eea" HorizontalOptions="End" VerticalOptions="Center"/>
+ </Grid>
+ <VerticalStackLayout x:Name="Faq3Answer" IsVisible="False" Padding="20,0,20,20" Spacing="10">
+ <BoxView HeightRequest="1" Color="{StaticResource Gray200}" Margin="0,0,0,10"/>
+ <Label Text="Schweiz (6-1), Deutschland (1-6), USA (A-F), Prozent (0-100%). Du kannst das System in den Einstellungen aendern." FontSize="14" TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}" LineHeight="1.5"/>
+ </VerticalStackLayout>
+ </VerticalStackLayout>
+ </Frame>
+
+ <!-- FAQ 4 -->
+ <Frame CornerRadius="12" Padding="0" HasShadow="True" BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}">
+ <VerticalStackLayout Spacing="0">
+ <Grid Padding="20">
+ <Grid.GestureRecognizers>
+ <TapGestureRecognizer Tapped="OnFaq4Tapped"/>
+ </Grid.GestureRecognizers>
+ <Label Text="Wo werden meine Daten gespeichert?" FontSize="18" FontAttributes="Bold" TextColor="#667eea" VerticalOptions="Center"/>
+ <Label x:Name="Faq4Arrow" Text="▼" FontSize="20" TextColor="#667eea" HorizontalOptions="End" VerticalOptions="Center"/>
+ </Grid>
+ <VerticalStackLayout x:Name="Faq4Answer" IsVisible="False" Padding="20,0,20,20" Spacing="10">
+ <BoxView HeightRequest="1" Color="{StaticResource Gray200}" Margin="0,0,0,10"/>
+ <Label Text="Alle Daten werden lokal auf deinem Geraet gespeichert. Keine Cloud, keine Drittanbieter." FontSize="14" TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}" LineHeight="1.5"/>
+ </VerticalStackLayout>
+ </VerticalStackLayout>
+ </Frame>
+
+ <!-- FAQ 5 -->
+ <Frame CornerRadius="12" Padding="0" HasShadow="True" BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}">
+ <VerticalStackLayout Spacing="0">
+ <Grid Padding="20">
+ <Grid.GestureRecognizers>
+ <TapGestureRecognizer Tapped="OnFaq5Tapped"/>
+ </Grid.GestureRecognizers>
+ <Label Text="Kann ich das Notensystem wechseln?" FontSize="18" FontAttributes="Bold" TextColor="#667eea" VerticalOptions="Center"/>
+ <Label x:Name="Faq5Arrow" Text="▼" FontSize="20" TextColor="#667eea" HorizontalOptions="End" VerticalOptions="Center"/>
+ </Grid>
+ <VerticalStackLayout x:Name="Faq5Answer" IsVisible="False" Padding="20,0,20,20" Spacing="10">
+ <BoxView HeightRequest="1" Color="{StaticResource Gray200}" Margin="0,0,0,10"/>
+ <Label Text="Ja! Gehe zu Einstellungen und waehle ein anderes System. Alle Noten werden automatisch umgerechnet." FontSize="14" TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}" LineHeight="1.5"/>
+ </VerticalStackLayout>
+ </VerticalStackLayout>
+ </Frame>
+
+ </VerticalStackLayout>
+ </ScrollView>
+ </VerticalStackLayout>
+
  </VerticalStackLayout>
 </ScrollView>
 
