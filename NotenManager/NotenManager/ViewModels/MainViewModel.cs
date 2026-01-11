@@ -894,6 +894,15 @@ _originalGradingSystem = newSystem;
 
                note.Grade = newNumeric;
         }
+
+            // Force UI update by recreating the Notes collection
+            // This is necessary because Note objects don't implement INotifyPropertyChanged
+            var tempNotes = subject.Notes.ToList();
+            subject.Notes.Clear();
+            foreach (var note in tempNotes)
+            {
+                subject.Notes.Add(note);
+            }
             }
 
             // Save the converted data
