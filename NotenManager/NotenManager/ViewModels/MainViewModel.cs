@@ -780,22 +780,6 @@ Date = NewNoteDate
                     ConvertAllGrades(oldMin, oldMax, oldIsAsc, newMin, newMax, newIsAsc);
                     _dataService.SaveData();
 
-                    // Force UI update by triggering property notifications
-                    // Notify that all subjects and their notes have changed
-                    OnPropertyChanged(nameof(Subjects));
-
-                    // If on Notes page, update the selected subject to refresh the notes list
-                    if (CurrentPage == "Notes" && SelectedSubject != null)
-                    {
-                        var currentSubjectId = SelectedSubject.Id;
-                        var updatedSubject = Subjects.FirstOrDefault(s => s.Id == currentSubjectId);
-                        if (updatedSubject != null)
-                        {
-                            SelectedSubject = null;  // Clear first
-                            SelectedSubject = updatedSubject;  // Then set to trigger update
-                        }
-                    }
-
                     // Update overall average
                     UpdateOverallAverage();
                     LoadRecentNotes();
@@ -823,10 +807,27 @@ _originalGradingSystem = newSystem;
      // Refresh display grades and charts after settings conversion
             RefreshDisplayGrades();
 
+            // Force complete UI refresh by recreating Subjects collection
+            // This ensures the Average property is re-evaluated in Overview and Subjects pages
+            var tempSubjects = Subjects.ToList();
+            Subjects.Clear();
+            foreach (var subject in tempSubjects)
+            {
+                Subjects.Add(subject);
+            }
+
+            // If on Notes page, update the selected subject to refresh the notes list
             if (CurrentPage == "Notes" && SelectedSubject != null)
-{
-             UpdateGradeChart();
-    }
+            {
+                var currentSubjectId = SelectedSubject.Id;
+                var updatedSubject = Subjects.FirstOrDefault(s => s.Id == currentSubjectId);
+                if (updatedSubject != null)
+                {
+                    SelectedSubject = null;  // Clear first
+                    SelectedSubject = updatedSubject;  // Then set to trigger update
+                }
+                UpdateGradeChart();
+            }
 
             await Application.Current?.MainPage?.DisplayAlert("Gespeichert", "Einstellungen wurden erfolgreich gespeichert.\n\nAlle Noten wurden umgerechnet.", "OK");
         }
