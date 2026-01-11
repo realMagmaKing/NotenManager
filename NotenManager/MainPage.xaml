@@ -37,11 +37,14 @@
  </Grid.Background>
 
  <VerticalStackLayout Padding="20,30" Spacing="10">
- <Label Text="📊 NotenManager" 
- FontSize="24" 
- FontAttributes="Bold" 
- TextColor="White" 
- Margin="0,0,0,30"/>
+ <HorizontalStackLayout Spacing="12" VerticalOptions="Center" Margin="0,0,0,30">
+ <Image Source="notenmanagerlogo_ui.jpg"
+ WidthRequest="44"
+ HeightRequest="44"
+ Aspect="AspectFit"
+ VerticalOptions="Center" />
+ <Label Text="NotenManager" FontSize="24" FontAttributes="Bold" TextColor="White" VerticalOptions="Center" />
+ </HorizontalStackLayout>
 
  <Frame x:Name="OverviewFrame" BackgroundColor="Transparent" 
  Padding="20,16"
