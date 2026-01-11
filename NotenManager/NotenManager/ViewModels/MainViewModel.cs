@@ -780,23 +780,31 @@ Date = NewNoteDate
                     ConvertAllGrades(oldMin, oldMax, oldIsAsc, newMin, newMax, newIsAsc);
                     _dataService.SaveData();
 
-                    // Force complete UI refresh
-               var tempSubjects = Subjects.ToList();
-     Subjects.Clear();
-      foreach (var subject in tempSubjects)
-        {
- Subjects.Add(subject);
-          }
+                    // Force UI update by triggering property notifications
+                    // Notify that all subjects and their notes have changed
+                    OnPropertyChanged(nameof(Subjects));
 
-     // Update overall average
-         UpdateOverallAverage();
-      LoadRecentNotes();
-       }
-         catch (Exception ex)
-       {
- await Application.Current?.MainPage?.DisplayAlert("Fehler", $"Fehler bei der Notenumrechnung: {ex.Message}", "OK");
-               return;
-     }
+                    // If on Notes page, update the selected subject to refresh the notes list
+                    if (CurrentPage == "Notes" && SelectedSubject != null)
+                    {
+                        var currentSubjectId = SelectedSubject.Id;
+                        var updatedSubject = Subjects.FirstOrDefault(s => s.Id == currentSubjectId);
+                        if (updatedSubject != null)
+                        {
+                            SelectedSubject = null;  // Clear first
+                            SelectedSubject = updatedSubject;  // Then set to trigger update
+                        }
+                    }
+
+                    // Update overall average
+                    UpdateOverallAverage();
+                    LoadRecentNotes();
+                }
+                catch (Exception ex)
+                {
+                    await Application.Current?.MainPage?.DisplayAlert("Fehler", $"Fehler bei der Notenumrechnung: {ex.Message}", "OK");
+                    return;
+                }
             }
 
             // Persist settings after conversion
@@ -888,26 +896,8 @@ _originalGradingSystem = newSystem;
         }
             }
 
-            // Save and reload to ensure UI updates properly
-            _dataService.SaveSubjects(Subjects);
-
-            // Reload subjects to trigger property change notifications
-            var reloadedSubjects = _dataService.GetSubjects();
-            Subjects.Clear();
-            foreach (var subject in reloadedSubjects)
-            {
-                Subjects.Add(subject);
-            }
-
-            // If we're on the Notes page, update the selected subject reference
-            if (CurrentPage == "Notes" && SelectedSubject != null)
-            {
-                var updatedSubject = Subjects.FirstOrDefault(s => s.Id == SelectedSubject.Id);
-                if (updatedSubject != null)
-                {
-                    SelectedSubject = updatedSubject;
-                }
-            }
+            // Save the converted data
+            _dataService.SaveData();
       }
 
         private void RefreshDisplayGrades()
