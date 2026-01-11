@@ -116,7 +116,7 @@ namespace NotenManager.ViewModels
  };
 
         [ObservableProperty]
-        private string[] availableChartStyles = new[] { "Linie", "Balken", "Fl�che" };
+        private string[] availableChartStyles = new[] { "Linie", "Balken", "Fläche" };
 
         [ObservableProperty]
         private string notificationTimeDisplay = "18:00 Uhr";
@@ -362,8 +362,8 @@ namespace NotenManager.ViewModels
         private async void DeleteSubject(Subject subject)
         {
             bool answer = await Application.Current.MainPage.DisplayAlert(
-            "L�schen",
-            $"M�chtest du das Fach '{subject.Name}' wirklich l�schen?",
+            "Löschen",
+            $"Möchtest du das Fach '{subject.Name}' wirklich löschen?",
             "Ja",
             "Nein");
 
@@ -459,7 +459,7 @@ NewNoteGradeError = null;
         // Check for NaN or Infinity
        if (double.IsNaN(NewNoteGrade) || double.IsInfinity(NewNoteGrade))
       {
-           NewNoteGradeError = "Ung�ltige Eingabe";
+           NewNoteGradeError = "Ungültige Eingabe";
      return;
     }
 
@@ -551,7 +551,7 @@ if (!ValidateNewNoteAll())
        // Additional safety check for grade value
       if (double.IsNaN(NewNoteGrade) || double.IsInfinity(NewNoteGrade))
        {
-     NewNoteGradeError = "Ung�ltige Note";
+     NewNoteGradeError = "Ungültige Note";
     return;
    }
 
@@ -590,7 +590,7 @@ Date = NewNoteDate
       catch (Exception ex)
    {
        System.Diagnostics.Debug.WriteLine($"AddNote error: {ex.Message}");
-  Application.Current?.MainPage?.DisplayAlert("Fehler", "Fehler beim Hinzuf�gen der Note. Bitte �berpr�fe deine Eingaben.", "OK");
+  Application.Current?.MainPage?.DisplayAlert("Fehler", "Fehler beim Hinzufügen der Note. Bitte überprüfe deine Eingaben.", "OK");
      }
   }
 
@@ -626,7 +626,7 @@ Date = NewNoteDate
        // Additional safety check for grade value
      if (double.IsNaN(NewNoteGrade) || double.IsInfinity(NewNoteGrade))
       {
-        NewNoteGradeError = "Ung�ltige Note";
+        NewNoteGradeError = "Ungültige Note";
   return;
  }
 
@@ -664,7 +664,7 @@ Date = NewNoteDate
       catch (Exception ex)
      {
       System.Diagnostics.Debug.WriteLine($"UpdateNote error: {ex.Message}");
-  Application.Current?.MainPage?.DisplayAlert("Fehler", "Fehler beim Aktualisieren der Note. Bitte �berpr�fe deine Eingaben.", "OK");
+  Application.Current?.MainPage?.DisplayAlert("Fehler", "Fehler beim Aktualisieren der Note. Bitte überprüfe deine Eingaben.", "OK");
      }
       }
 
@@ -674,8 +674,8 @@ Date = NewNoteDate
             if (_editingNote == null) return;
 
             bool answer = await Application.Current.MainPage.DisplayAlert(
-            "L�schen",
- "M�chtest du diese Note wirklich l�schen?",
+            "Löschen",
+ "Möchtest du diese Note wirklich löschen?",
      "Ja",
 "Nein");
 
@@ -707,8 +707,8 @@ Date = NewNoteDate
         private async void DeleteNote(Note note)
         {
             bool answer = await Application.Current.MainPage.DisplayAlert(
-            "L�schen",
-"M�chtest du diese Note wirklich l�schen?",
+            "Löschen",
+"Möchtest du diese Note wirklich löschen?",
           "Ja",
 "Nein");
 
@@ -994,16 +994,16 @@ _originalGradingSystem = newSystem;
         [RelayCommand]
         private void ExportData()
         {
-            Application.Current?.MainPage?.DisplayAlert("Export", "Export-Funktion wird in K�rze verf�gbar sein", "OK");
+            Application.Current?.MainPage?.DisplayAlert("Export", "Export-Funktion wird in Kürze verfügbar sein", "OK");
         }
 
         [RelayCommand]
         private async void ClearAllData()
         {
             bool answer = await Application.Current.MainPage.DisplayAlert(
-            "Alle Daten l�schen",
-            "M�chtest du wirklich ALLE Daten l�schen? Dies kann nicht r�ckg�ngig gemacht werden!",
-            "Ja, l�schen",
+            "Alle Daten löschen",
+            "Möchtest du wirklich ALLE Daten löschen? Dies kann nicht rückgängig gemacht werden!",
+            "Ja, löschen",
             "Abbrechen");
 
             if (answer)
@@ -1011,7 +1011,7 @@ _originalGradingSystem = newSystem;
                 Subjects.Clear();
                 _dataService.SaveData();
                 UpdateOverallAverage();
-                await Application.Current.MainPage.DisplayAlert("Gel�scht", "Alle Daten wurden gel�scht", "OK");
+                await Application.Current.MainPage.DisplayAlert("Gelöscht", "Alle Daten wurden gelöscht", "OK");
             }
         }
 
@@ -1103,7 +1103,7 @@ _originalGradingSystem = newSystem;
                     };
                     break;
 
-                case "Fl�che":
+                case "Fläche":
                     Series = new ISeries[]
                     {
  new LineSeries<double>
