@@ -116,7 +116,7 @@ namespace NotenManager.ViewModels
  };
 
         [ObservableProperty]
-        private string[] availableChartStyles = new[] { "Linie", "Balken", "Fläche" };
+        private string[] availableChartStyles = new[] { "Linie", "Balken", "Flï¿½che" };
 
         [ObservableProperty]
         private string notificationTimeDisplay = "18:00 Uhr";
@@ -362,8 +362,8 @@ namespace NotenManager.ViewModels
         private async void DeleteSubject(Subject subject)
         {
             bool answer = await Application.Current.MainPage.DisplayAlert(
-            "Löschen",
-            $"Möchtest du das Fach '{subject.Name}' wirklich löschen?",
+            "Lï¿½schen",
+            $"Mï¿½chtest du das Fach '{subject.Name}' wirklich lï¿½schen?",
             "Ja",
             "Nein");
 
@@ -378,7 +378,7 @@ namespace NotenManager.ViewModels
         private void ShowAddNoteModal()
         {
             NewNoteType = "";
-            
+
             // Set default grade based on grading system
             if (Settings.GradingSystem?.StartsWith("USA") == true)
    {
@@ -392,7 +392,7 @@ namespace NotenManager.ViewModels
             {
           NewNoteGrade = Settings.MaxGrade; // Best grade for descending systems (e.g., 6 for Switzerland)
      }
-       
+
     NewNoteDate = DateTime.Now;
   // clear errors
     NewNoteTypeError = null;
@@ -450,7 +450,7 @@ NewNoteGradeError = null;
             try
             {
          // Validate based on current grading system
-       if (Settings == null) 
+       if (Settings == null)
       {
     NewNoteGradeError = "Einstellungen nicht geladen";
        return;
@@ -459,7 +459,7 @@ NewNoteGradeError = null;
         // Check for NaN or Infinity
        if (double.IsNaN(NewNoteGrade) || double.IsInfinity(NewNoteGrade))
       {
-           NewNoteGradeError = "Ungültige Eingabe";
+           NewNoteGradeError = "Ungï¿½ltige Eingabe";
      return;
     }
 
@@ -487,11 +487,11 @@ NewNoteGradeError = null;
            {
                rangeText = $"{Settings.MinGrade} (schlechteste) bis {Settings.MaxGrade} (beste)";
                     }
-               
+
     NewNoteGradeError = $"Note muss zwischen {rangeText} liegen";
          return;
      }
-   
+
      NewNoteGradeError = null;
      }
   catch (Exception ex)
@@ -551,7 +551,7 @@ if (!ValidateNewNoteAll())
        // Additional safety check for grade value
       if (double.IsNaN(NewNoteGrade) || double.IsInfinity(NewNoteGrade))
        {
-     NewNoteGradeError = "Ungültige Note";
+     NewNoteGradeError = "Ungï¿½ltige Note";
     return;
    }
 
@@ -572,11 +572,11 @@ Date = NewNoteDate
     // Force complete UI refresh
        var tempIndex = Subjects.IndexOf(SelectedSubject);
         var tempSubject = SelectedSubject;
-   
+
      // Remove and re-add to force UI update
      Subjects.RemoveAt(tempIndex);
         Subjects.Insert(tempIndex, tempSubject);
-    
+
     // Re-select the subject
        SelectedSubject = null;
      SelectedSubject = tempSubject;
@@ -590,7 +590,7 @@ Date = NewNoteDate
       catch (Exception ex)
    {
        System.Diagnostics.Debug.WriteLine($"AddNote error: {ex.Message}");
-  Application.Current?.MainPage?.DisplayAlert("Fehler", "Fehler beim Hinzufügen der Note. Bitte überprüfe deine Eingaben.", "OK");
+  Application.Current?.MainPage?.DisplayAlert("Fehler", "Fehler beim Hinzufï¿½gen der Note. Bitte ï¿½berprï¿½fe deine Eingaben.", "OK");
      }
   }
 
@@ -626,7 +626,7 @@ Date = NewNoteDate
        // Additional safety check for grade value
      if (double.IsNaN(NewNoteGrade) || double.IsInfinity(NewNoteGrade))
       {
-        NewNoteGradeError = "Ungültige Note";
+        NewNoteGradeError = "Ungï¿½ltige Note";
   return;
  }
 
@@ -646,11 +646,11 @@ Date = NewNoteDate
      // Force complete UI refresh
        var tempIndex = Subjects.IndexOf(SelectedSubject);
      var tempSubject = SelectedSubject;
-   
+
     // Remove and re-add to force UI update
       Subjects.RemoveAt(tempIndex);
        Subjects.Insert(tempIndex, tempSubject);
-   
+
    // Re-select the subject
       SelectedSubject = null;
        SelectedSubject = tempSubject;
@@ -664,7 +664,7 @@ Date = NewNoteDate
       catch (Exception ex)
      {
       System.Diagnostics.Debug.WriteLine($"UpdateNote error: {ex.Message}");
-  Application.Current?.MainPage?.DisplayAlert("Fehler", "Fehler beim Aktualisieren der Note. Bitte überprüfe deine Eingaben.", "OK");
+  Application.Current?.MainPage?.DisplayAlert("Fehler", "Fehler beim Aktualisieren der Note. Bitte ï¿½berprï¿½fe deine Eingaben.", "OK");
      }
       }
 
@@ -674,8 +674,8 @@ Date = NewNoteDate
             if (_editingNote == null) return;
 
             bool answer = await Application.Current.MainPage.DisplayAlert(
-            "Löschen",
- "Möchtest du diese Note wirklich löschen?",
+            "Lï¿½schen",
+ "Mï¿½chtest du diese Note wirklich lï¿½schen?",
      "Ja",
 "Nein");
 
@@ -686,11 +686,11 @@ Date = NewNoteDate
       // Force complete UI refresh
      var tempIndex = Subjects.IndexOf(SelectedSubject);
          var tempSubject = SelectedSubject;
-       
+
    // Remove and re-add to force UI update
     Subjects.RemoveAt(tempIndex);
        Subjects.Insert(tempIndex, tempSubject);
-     
+
    // Re-select the subject
     SelectedSubject = null;
    SelectedSubject = tempSubject;
@@ -707,8 +707,8 @@ Date = NewNoteDate
         private async void DeleteNote(Note note)
         {
             bool answer = await Application.Current.MainPage.DisplayAlert(
-            "Löschen",
-"Möchtest du diese Note wirklich löschen?",
+            "Lï¿½schen",
+"Mï¿½chtest du diese Note wirklich lï¿½schen?",
           "Ja",
 "Nein");
 
@@ -719,11 +719,11 @@ Date = NewNoteDate
       // Force complete UI refresh
       var tempIndex = Subjects.IndexOf(SelectedSubject);
  var tempSubject = SelectedSubject;
-  
+
      // Remove and re-add to force UI update
      Subjects.RemoveAt(tempIndex);
    Subjects.Insert(tempIndex, tempSubject);
-        
+
    // Re-select the subject
   SelectedSubject = null;
       SelectedSubject = tempSubject;
@@ -787,7 +787,7 @@ Date = NewNoteDate
         {
  Subjects.Add(subject);
           }
-          
+
      // Update overall average
          UpdateOverallAverage();
       LoadRecentNotes();
@@ -845,7 +845,7 @@ _originalGradingSystem = newSystem;
 
         // Step 1: Normalize to 0-1 scale (0 = worst, 1 = best)
                 double normalizedValue;
-      
+
       if (oldIsAsc)
      {
          // Lower is better (e.g., Germany 1=best, 6=worst)
@@ -886,6 +886,27 @@ _originalGradingSystem = newSystem;
 
                note.Grade = newNumeric;
         }
+            }
+
+            // Save and reload to ensure UI updates properly
+            _dataService.SaveSubjects(Subjects);
+
+            // Reload subjects to trigger property change notifications
+            var reloadedSubjects = _dataService.GetSubjects();
+            Subjects.Clear();
+            foreach (var subject in reloadedSubjects)
+            {
+                Subjects.Add(subject);
+            }
+
+            // If we're on the Notes page, update the selected subject reference
+            if (CurrentPage == "Notes" && SelectedSubject != null)
+            {
+                var updatedSubject = Subjects.FirstOrDefault(s => s.Id == SelectedSubject.Id);
+                if (updatedSubject != null)
+                {
+                    SelectedSubject = updatedSubject;
+                }
             }
       }
 
@@ -961,16 +982,16 @@ _originalGradingSystem = newSystem;
         [RelayCommand]
         private void ExportData()
         {
-            Application.Current?.MainPage?.DisplayAlert("Export", "Export-Funktion wird in Kürze verfügbar sein", "OK");
+            Application.Current?.MainPage?.DisplayAlert("Export", "Export-Funktion wird in Kï¿½rze verfï¿½gbar sein", "OK");
         }
 
         [RelayCommand]
         private async void ClearAllData()
         {
             bool answer = await Application.Current.MainPage.DisplayAlert(
-            "Alle Daten löschen",
-            "Möchtest du wirklich ALLE Daten löschen? Dies kann nicht rückgängig gemacht werden!",
-            "Ja, löschen",
+            "Alle Daten lï¿½schen",
+            "Mï¿½chtest du wirklich ALLE Daten lï¿½schen? Dies kann nicht rï¿½ckgï¿½ngig gemacht werden!",
+            "Ja, lï¿½schen",
             "Abbrechen");
 
             if (answer)
@@ -978,7 +999,7 @@ _originalGradingSystem = newSystem;
                 Subjects.Clear();
                 _dataService.SaveData();
                 UpdateOverallAverage();
-                await Application.Current.MainPage.DisplayAlert("Gelöscht", "Alle Daten wurden gelöscht", "OK");
+                await Application.Current.MainPage.DisplayAlert("Gelï¿½scht", "Alle Daten wurden gelï¿½scht", "OK");
             }
         }
 
@@ -1070,7 +1091,7 @@ _originalGradingSystem = newSystem;
                     };
                     break;
 
-                case "Fläche":
+                case "Flï¿½che":
                     Series = new ISeries[]
                     {
  new LineSeries<double>
