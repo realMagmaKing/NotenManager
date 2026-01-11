@@ -932,7 +932,19 @@ _originalGradingSystem = newSystem;
                             note.DisplayGrade = null;
                         }
                     }
+
+                    // Force UI update by recreating the Notes collection
+                    // This ensures DisplayGrade changes are reflected in the UI
+                    var tempNotes = subject.Notes.ToList();
+                    subject.Notes.Clear();
+                    foreach (var note in tempNotes)
+                    {
+                        subject.Notes.Add(note);
+                    }
                 }
+
+                // Force update of subject averages in the UI
+                OnPropertyChanged(nameof(Subjects));
             }
             catch (Exception ex)
             {
